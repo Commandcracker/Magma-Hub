@@ -7,3 +7,6 @@ Just Another Roblox Script Hub!
 ```lua
 loadstring(game:HttpGet('https://raw.githubusercontent.com/Commandcracker/Magma-Hub/main/main.lua'))()
 ```
+## Preview
+
+![Preview](page/img/preview.png)
