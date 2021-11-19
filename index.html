@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Magma Hub</title>
+        <meta charset="UTF-8" />
+        <script type="text/javascript" src="page/js/jquery-3.6.0.min.js"></script>
+        <link rel="stylesheet" href="page/css/main.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+        <script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js" data-auto-a11y="true"></script>
+    </head>
+    <body>
+        <center>
+            <h1>Magma Hub <button id="github"><h1><i class="fab fa-github"></i></h1></button></h1>
+
+            <img src="page/img/preview.png" alt="Preview">
+
+            <div id="hub_script" >
+                <br>
+                <span style="color: rgb(132, 214, 247);">loadstring</span><span style="color: rgb(204, 204, 204);">(</span><span style="color: rgb(132, 214, 247);">game</span><span style="color: rgb(204, 204, 204);">:</span><span style="color: rgb(253, 251, 172);">HttpGet</span><span style="color: rgb(204, 204, 204);">(</span><span style="color: rgb(173, 241, 149);">'https://raw.githubusercontent.com/Commandcracker/Magma-Hub/main/main.lua'</span><span style="color: rgb(204, 204, 204);">))()</span>
+                <button id="coppy_script"><i class="far fa-clipboard"></i></button>
+            </div>
+            
+            <h2>Supported Games:</h2>
+
+            <div id="games">
+            </div>
+        </center>
+
+        <script>
+            const coppy_script  = document.getElementById("coppy_script");
+            const github        = document.getElementById("github");
+
+            coppy_script.addEventListener("click", () => {
+                const scriptBox = document.createElement("textarea");
+                scriptBox.value = "loadstring(game:HttpGet('https://raw.githubusercontent.com/Commandcracker/Magma-Hub/main/main.lua'))()";
+                document.body.appendChild(scriptBox);
+                scriptBox.select();
+                document.execCommand("copy");
+                document.body.removeChild(scriptBox);
+            });
+
+            github.addEventListener("click", () => {
+                window.open("https://github.com/Commandcracker/Magma-Hub")
+            });
+        </script>
+        <script type="text/javascript" src="page/js/main.js"></script>
+    </body>
+</html>

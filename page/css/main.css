@@ -1,0 +1,58 @@
+* {
+    font-family: "Montserrat";
+}
+
+body {
+    background-color: rgb(24, 22, 22);
+    color: white;
+}
+
+li {
+    text-align: left;
+}
+
+#games {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.game {
+    width: fit-content;
+    background-color: rgb(34, 34, 34);
+    padding: 10px;
+    margin: 10px;
+}
+
+.game a {
+    vertical-align: top;
+    text-decoration: none;
+    color: white;
+    margin-left: 10px;
+}
+
+#coppy_script:hover {
+    cursor: pointer;
+}
+
+#coppy_script {
+    color: white;
+    background-color: rgb(34, 34, 34);
+    border-color: rgb(30, 30, 30);
+    border-radius: 4px;
+    border-style: solid;
+}
+
+#coppy_script:active {
+    transform: translateY(-1px);
+}
+
+#github:hover {
+    cursor: pointer;
+}
+
+#github {
+    border: none;
+    color: white;
+    background-color: transparent;
+}
