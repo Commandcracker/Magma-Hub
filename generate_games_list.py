@@ -1,23 +1,68 @@
-import json
-import os
-import requests
-from rich.pretty import pprint
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
-def Get_Game_Details(placeId: int):
-    return requests.get("https://www.roblox.com/places/api-get-details?assetId="+str(placeId)).json()
+# built-in modules
+from json import loads, dump
+from os   import listdir
+from sys  import stdout
 
-def Get_Game_Icons(placeIds: str, size: str = "512x512", format: str = "Png", isCircular: bool = False):
-    return requests.get("https://thumbnails.roblox.com/v1/places/gameicons?placeIds="+placeIds+"&size="+size+"&format="+format+"&isCircular="+str(isCircular)).json()
+# pip modules
+from rich import print
+from rich.traceback import install
+from urllib3 import PoolManager
 
-out = []
+install()
+http = PoolManager()
 
-for file in os.listdir("games"):
-    placeId     = file.split(".")[0]
-    name        = Get_Game_Details(placeId)["Name"]
-    imageUrl    = Get_Game_Icons(placeId,"128x128")["data"][0]["imageUrl"]
+class RobloxAPI(object):
+    @staticmethod
+    def getUniverseId(placeId: str):
+        requests = http.request('GET', "https://api.roblox.com/universes/get-universe-containing-place?placeid="+str(placeId))
+        return loads(requests.data)["UniverseId"]
 
-    out.append([placeId, name, imageUrl])
+    @staticmethod
+    def getUniverseInfo(universeId: str):
+        requests = http.request('GET', "https://api.roblox.com/universes/get-info?universeId="+str(universeId))
+        return loads(requests.data)
 
-json.dump(out, open("games.json", "w"), indent=3)
-print("Final json")
-pprint(out)
+    @staticmethod
+    def getUniversesIcon(universeIds: str, size: str = "512x512", format: str = "Png", isCircular: bool = False):
+        requests = http.request('GET', "https://thumbnails.roblox.com/v1/games/icons?universeIds="+str(universeIds)+"&size="+size+"&format="+format+"&isCircular="+str(isCircular))
+        return loads(requests.data)
+
+    @staticmethod
+    def Get_Game_Details(placeId: str):
+        requests = http.request('GET', "https://www.roblox.com/places/api-get-details?assetId="+str(placeId))
+        return loads(requests.data)
+    
+    @staticmethod
+    def Get_Game_Icons(placeIds: str, size: str = "512x512", format: str = "Png", isCircular: bool = False):
+        requests = http.request('GET', "https://thumbnails.roblox.com/v1/places/gameicons?placeIds="+placeIds+"&size="+size+"&format="+format+"&isCircular="+str(isCircular))
+        return loads(requests.data)
+
+if __name__ == '__main__':
+    out = []
+
+    for file in listdir("games"):
+        universeId = file.split(".")[0]
+        print(str(universeId), end=" ")
+        stdout.flush()
+
+        UniverseInfo = RobloxAPI.getUniverseInfo(universeId)
+        print('"'+UniverseInfo["Name"]+'" '+str(UniverseInfo["RootPlace"]), end=" ")
+        stdout.flush()
+
+        UniversesIcon = RobloxAPI.getUniversesIcon(universeId, "128x128")
+        print(UniversesIcon["data"][0]["imageUrl"])
+
+        out.append({
+            "UniverseId": int(universeId),
+            "Name": UniverseInfo["Name"],
+            "Icon": UniversesIcon["data"][0]["imageUrl"],
+            "RootPlace": UniverseInfo["RootPlace"]
+        })
+
+    dump(out, open("games.json", "w"), indent=3)
+    print()
+    print("Final json")
+    print(out)

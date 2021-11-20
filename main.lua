@@ -571,8 +571,8 @@ end)
 if setclipboard ~= nil then
     local CoppyCategory = HUB_API.CreateCategory("Coppy")
 
-    CoppyCategory.CreateButton("PlaceId", function()
-        setclipboard(tostring(game.PlaceId))
+    CoppyCategory.CreateButton("GameId/UniverseId", function()
+        setclipboard(tostring(game.GameId))
     end)
 
     CoppyCategory.CreateButton("Position", function()
@@ -580,15 +580,14 @@ if setclipboard ~= nil then
         setclipboard(math.floor(pos.X)..", "..math.floor(pos.Y)..", "..math.floor(pos.Z))
     end)
 
-    CoppyCategory.CreateButton("GameId", function()
-        setclipboard(tostring(game.GameId))
+    CoppyCategory.CreateButton("PlaceId", function()
+        setclipboard(tostring(game.PlaceId))
     end)
-
 end
 
 -- Other Games
 local successed, errData = pcall(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Commandcracker/Magma-Hub/main/games/"..game.PlaceId..".lua"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Commandcracker/Magma-Hub/main/games/"..game.GameId..".lua"))()
 end)
 
 if successed then
