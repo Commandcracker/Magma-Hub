@@ -26,7 +26,7 @@
    {
       "UniverseId": 2324662457,
       "Name": "[\ud83d\udcb0 x2 Yen] Anime Fighters Simulator",
-      "Icon": "https://t7.rbxcdn.com/518a57b070f9388fbe09136cb79e8077",
+      "Icon": "https://t1.rbxcdn.com/4d7b40c9529d6f35d17c0ed8ab399d49",
       "RootPlace": 6299805723
    },
    {
@@ -40,6 +40,12 @@
       "Name": "Cash Grab Simulator",
       "Icon": "https://t7.rbxcdn.com/07228744933d5e8665637e903dcaeab5",
       "RootPlace": 1283960312
+   },
+   {
+      "UniverseId": 571399053,
+      "Name": "Operation Scorpion",
+      "Icon": "https://t6.rbxcdn.com/8dc71a88ddc25deceeed7c7af75c8f58",
+      "RootPlace": 1436977294
    },
    {
       "UniverseId": 73885730,
