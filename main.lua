@@ -5,12 +5,35 @@
     https://github.com/Commandcracker/Magma-Hub
 ]]
 
--- Variables
-local LocalPlayer = game.Players.LocalPlayer
-
 -- Services
 local UserInputService  = game:GetService("UserInputService")
 local VirtualUser       = game:GetService("VirtualUser")
+local Players           = game:GetService("Players")
+
+-- Variables
+local LocalPlayer = Players.LocalPlayer
+
+-- Anti Kick Hook
+if hookmetamethod ~= nil and getnamecallmethod ~= nil then
+    local OldNameCall = nil
+
+    OldNameCall = hookmetamethod(game, "__namecall", function(Self, n, ...)
+        local NameCallMethod = getnamecallmethod()
+
+        if tostring(string.lower(NameCallMethod)) == "kick" then
+            if n == nil then
+                game.StarterGui:SetCore("SendNotification", {Title="Magma Hub"; Text="Kick prevented."; Duration=2;})
+                print("[Magma Hub] Kick prevented.")
+            else
+                game.StarterGui:SetCore("SendNotification", {Title="Magma Hub"; Text="Kick "..'"'.. n ..'"'.." prevented."; Duration=2;})
+                print("[Magma Hub] Kick "..'"'.. n ..'"'.." prevented.")
+            end
+            return nil
+        end
+
+        return OldNameCall(Self, n, ...)
+    end)
+end
 
 -- Utilitys
 local util = {}
@@ -495,6 +518,8 @@ LocalPlayer.Idled:connect(function()
     if AntiAFKButton.IsEnabeld() then
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new())
+        print("[Magma Hub] Reflected idle Kick")
+        game.StarterGui:SetCore("SendNotification", {Title="Magma Hub"; Text="Reflected idle Kick"; Duration=2;})
     end
 end)
 
