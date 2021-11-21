@@ -9,7 +9,8 @@
 local LocalPlayer = game.Players.LocalPlayer
 
 -- Services
-local UserInputService = game:GetService("UserInputService")
+local UserInputService  = game:GetService("UserInputService")
+local VirtualUser       = game:GetService("VirtualUser")
 
 -- Utilitys
 local util = {}
@@ -488,17 +489,14 @@ UniversalCategory.CreateButton("Btools", function()
     grabTool.Parent     = backpack
 end)
 
-if firesignal ~= nil then
-    local AntiAFKButton = UniversalCategory.CreateToggelButton("Anti AFK")
-    local UserInputService: UserInputService = game:GetService("UserInputService")
-    local RunService: RunService = game:GetService("RunService")
-    UserInputService.WindowFocusReleased:Connect(function()
-        if AntiAFKButton.IsEnabeld() then
-            RunService.Stepped:Wait()
-            pcall(firesignal, UserInputService.WindowFocused)
-        end
-    end)
-end
+local AntiAFKButton = UniversalCategory.CreateToggelButton("Anti AFK")
+
+LocalPlayer.Idled:connect(function()
+    if AntiAFKButton.IsEnabeld() then
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+    end
+end)
 
 --ESP
 local ESPButton     = UniversalCategory.CreateToggelButton("ESP")
