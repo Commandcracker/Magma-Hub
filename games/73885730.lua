@@ -18,3 +18,24 @@ PrisonLifeCategory.CreateButton("Give AK-47", function()
     local Event = game:GetService("Workspace").Remote.ItemHandler
     Event:InvokeServer(A_1)
 end)
+
+local AutoReload = PrisonLifeCategory.CreateToggelButton("Auto Reload")
+
+local Players       = game:GetService("Players")
+local LocalPlayer   = Players.LocalPlayer
+
+coroutine.wrap(function()
+    while wait() do
+        if AutoReload.IsEnabeld() then
+            local Tool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
+            if Tool ~= nil then
+                local GunStates = require(Tool:FindFirstChildOfClass("ModuleScript"))
+                if GunStates.CurrentAmmo < GunStates.MaxAmmo then
+                    game:GetService("ReplicatedStorage").ReloadEvent:FireServer(Tool)
+                    wait(GunStates.ReloadTime)
+                    GunStates.CurrentAmmo = GunStates.MaxAmmo
+                end
+            end
+        end
+    end
+end)()
