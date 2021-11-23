@@ -827,6 +827,79 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
     until ESP_ENABLED == false
 end)
 
+-- FE Invisible
+local FEInvisible = UniversalCategory.CreateToggelButton("FE Invisible")
+
+local touched 		= false
+local box           = nil
+local loc
+
+LocalPlayer.CharacterAdded:connect(function(character)
+    if FEInvisible.IsEnabeld() then
+        repeat wait() until character.HumanoidRootPart
+        loc = character.HumanoidRootPart.Position
+        character:MoveTo(box.Position + Vector3.new(0,.5,0))
+    end
+end)
+
+FEInvisible.SetEnableFunction(function()
+    if box == nil then
+        box 		    = Instance.new('Part',workspace)
+        box.Anchored 	= true
+        box.CanCollide 	= true
+        box.Size 		= Vector3.new(10,1,10)
+        box.Position 	= Vector3.new(0,10000,0)
+        box.Touched:connect(function(part)
+            if (part.Parent.Name == LocalPlayer.Name) then
+                if touched == false then
+                    touched = true
+                    if LocalPlayer.Character and FEInvisible.IsEnabeld() then
+                        local no = LocalPlayer.Character.HumanoidRootPart:Clone()
+                        wait(.25)
+                        LocalPlayer.Character.HumanoidRootPart:Destroy()
+                        no.Parent = LocalPlayer.Character
+                        LocalPlayer.Character:MoveTo(loc)
+                        touched = false
+                    end
+                end
+            end
+        end)
+    end
+
+    repeat wait() until LocalPlayer.Character
+    loc = LocalPlayer.Character.HumanoidRootPart.Position
+    LocalPlayer.Character:MoveTo(box.Position + Vector3.new(0,.5,0))
+end)
+
+FEInvisible.SetDisableFunction(function()
+    if LocalPlayer.Character ~= nil then
+
+        local function respawn(plr)
+            local char = plr.Character
+            if char:FindFirstChildOfClass("Humanoid") then char:FindFirstChildOfClass("Humanoid"):ChangeState(15) end
+            char:ClearAllChildren()
+            local newChar = Instance.new("Model")
+            newChar.Parent = workspace
+            plr.Character = newChar
+            wait()
+            plr.Character = char
+            newChar:Destroy()
+        end
+
+        local function refresh(plr)
+            local Human = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid", true)
+            local pos = Human and Human.RootPart and Human.RootPart.CFrame
+            local pos1 = workspace.CurrentCamera.CFrame
+            respawn(plr)
+            task.spawn(function()
+                plr.CharacterAdded:Wait():WaitForChild("Humanoid").RootPart.CFrame, workspace.CurrentCamera.CFrame = pos, wait() and pos1
+            end)
+        end
+
+        refresh(LocalPlayer)
+    end
+end)
+
 -- Coppy
 if setclipboard ~= nil then
     local CoppyCategory = HUB_API.CreateCategory("Coppy")
