@@ -493,6 +493,10 @@ UniversalCategory.CreateButton("SimpleSpy", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua'))()
 end)
 
+UniversalCategory.CreateButton("F3X", function()
+    loadstring(game:GetObjects("rbxassetid://4698064966")[1].Source)()
+end)
+
 UniversalCategory.CreateButton("Btools", function()
     local backpack = game:GetService("Players").LocalPlayer.Backpack
 
