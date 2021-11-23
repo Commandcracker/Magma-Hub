@@ -62,3 +62,110 @@ coroutine.wrap(function()
         end
     end
 end)()
+
+-- Auto Rebirth
+local AutoRebirth = HUB_API.CreateCategory("Auto Rebirth")
+
+local AutoRebirthCanAfford = AutoRebirth.CreateToggelButton("Auto Rebirth (Can Afford)")
+coroutine.wrap(function()
+    while wait() do
+        if AutoRebirthCanAfford.IsEnabeld() then
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(1000)
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(500)
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(250)
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(100)
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(50)
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(25)
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(5)
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(1)
+        end
+    end
+end)()
+
+local AutoRebirth1 = AutoRebirth.CreateToggelButton("Auto Rebirth 1")
+coroutine.wrap(function()
+    while wait() do
+        if AutoRebirth1.IsEnabeld() then
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(1)
+        end
+    end
+end)()
+
+local AutoRebirth5 = AutoRebirth.CreateToggelButton("Auto Rebirth 5")
+coroutine.wrap(function()
+    while wait() do
+        if AutoRebirth5.IsEnabeld() then
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(5)
+        end
+    end
+end)()
+
+local AutoRebirth25 = AutoRebirth.CreateToggelButton("Auto Rebirth 25")
+coroutine.wrap(function()
+    while wait() do
+        if AutoRebirth25.IsEnabeld() then
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(25)
+        end
+    end
+end)()
+
+local AutoRebirth50 = AutoRebirth.CreateToggelButton("Auto Rebirth 50")
+coroutine.wrap(function()
+    while wait() do
+        if AutoRebirth50.IsEnabeld() then
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(50)
+        end
+    end
+end)()
+
+local AutoRebirth100 = AutoRebirth.CreateToggelButton("Auto Rebirth 100")
+coroutine.wrap(function()
+    while wait() do
+        if AutoRebirth100.IsEnabeld() then
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(100)
+        end
+    end
+end)()
+
+local AutoRebirth250 = AutoRebirth.CreateToggelButton("Auto Rebirth 250")
+coroutine.wrap(function()
+    while wait() do
+        if AutoRebirth250.IsEnabeld() then
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(250)
+        end
+    end
+end)()
+
+local AutoRebirth500 = AutoRebirth.CreateToggelButton("Auto Rebirth 500")
+coroutine.wrap(function()
+    while wait() do
+        if AutoRebirth500.IsEnabeld() then
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(500)
+        end
+    end
+end)()
+
+local AutoRebirth1000 = AutoRebirth.CreateToggelButton("Auto Rebirth 1.000")
+coroutine.wrap(function()
+    while wait() do
+        if AutoRebirth1000.IsEnabeld() then
+            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(1000)
+        end
+    end
+end)()
+
+-- Auto Equip Magnet
+local AutoEquipMagnet = Category.CreateToggelButton("Auto Equip Magnet")
+
+coroutine.wrap(function()
+    while wait() do
+        if AutoEquipMagnet.IsEnabeld() then
+            if LocalPlayer.Character ~= nil and LocalPlayer.Character.Humanoid ~= nil then
+                local Magnet = LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+                if Magnet ~= nil then
+                    LocalPlayer.Character.Humanoid:EquipTool(Magnet)
+                end
+            end
+        end
+    end
+end)()
