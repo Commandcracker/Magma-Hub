@@ -151,13 +151,14 @@ MinimizeButton.Font                     = Enum.Font.GothamBold
 MinimizeButton.TextSize                 = 14
 ]]
 
-local CategoryFrame                     = Instance.new("ScrollingFrame", MainFrame)
-CategoryFrame.Size                      = UDim2.new(0, 100, 1, -35)
-CategoryFrame.Position                  = UDim2.new(0, 0, 0, 35)
-CategoryFrame.BorderSizePixel           = 0
-CategoryFrame.ScrollBarThickness        = 5
-CategoryFrame.BackgroundColor3          = Color3.fromRGB(14, 14, 14)
-CategoryFrame.ScrollBarImageColor3      = Color3.fromRGB(4, 4, 4)
+local CategoryFrame                = Instance.new("ScrollingFrame", MainFrame)
+CategoryFrame.Size                 = UDim2.new(0, 100, 1, -35)
+CategoryFrame.Position             = UDim2.new(0, 0, 0, 35)
+CategoryFrame.BorderSizePixel      = 0
+CategoryFrame.ScrollBarThickness   = 5
+CategoryFrame.BackgroundColor3     = Color3.fromRGB(14, 14, 14)
+CategoryFrame.ScrollBarImageColor3 = Color3.fromRGB(4, 4, 4)
+CategoryFrame.AutomaticCanvasSize  = Enum.AutomaticSize.Y
 
 local CategoryFrame_UIListLayout    = Instance.new("UIListLayout", CategoryFrame)
 CategoryFrame_UIListLayout.Padding  = UDim.new(0, 5)
@@ -177,6 +178,7 @@ function HUB_API.CreateCategory(Text)
     Category.ModuleList.BackgroundTransparency   = 1
     Category.ModuleList.ScrollBarImageColor3     = Color3.fromRGB(4, 4, 4)
     Category.ModuleList.Visible                  = false
+    Category.ModuleList.AutomaticCanvasSize      = Enum.AutomaticSize.Y
 
     Category.ModuleList_UIListLayout            = Instance.new("UIListLayout", Category.ModuleList)
     Category.ModuleList_UIListLayout.Padding    = UDim.new(0, 5)

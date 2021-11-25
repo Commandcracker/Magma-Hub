@@ -1,6 +1,13 @@
 -- Swordburst 2
 local Category = HUB_API.CreateCategory("Swordburst 2")
 
+-- Services
+local Players = game:GetService("Players")
+
+-- Variables
+local LocalPlayer = Players.LocalPlayer
+
+-- Big Hit Box
 local BigHitBox = Category.CreateToggelButton("Big Hit Box",nil,function ()
 	for i,v in pairs(game.Workspace.Mobs:children()) do
 		if v:FindFirstChild("Head") then
@@ -24,6 +31,7 @@ coroutine.wrap(function()
 	end
 end)()
 
+-- Reach
 Category.CreateButton("Reach",function ()
 	if game.Players.LocalPlayer.Character then
 		for i,p in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
@@ -49,6 +57,7 @@ coroutine.wrap(function()
 	end
 end)()
 
+-- Unlock All Gamepasses and AnimPacks
 Category.CreateButton("Unlock All Gamepasses and AnimPacks",function ()
 	local Profile = game.ReplicatedStorage.Profiles[game.Players.LocalPlayer.Name]
 
@@ -113,6 +122,7 @@ Category.CreateButton("Unlock All Gamepasses and AnimPacks",function ()
 	end)
 end)
 
+-- Dismantle All
 Category.CreateInputButton("Dismantle All", function (inp)
 	for _,item in pairs(game.ReplicatedStorage.Profiles[game.Players.LocalPlayer.Name].Inventory:GetChildren()) do
 		if item.Name == inp then
@@ -122,6 +132,7 @@ Category.CreateInputButton("Dismantle All", function (inp)
 	end
 end)
 
+-- Max Upgrade
 Category.CreateInputButton("Max Upgrade", function (inp)
 	local item = game.ReplicatedStorage.Profiles[game.Players.LocalPlayer.Name].Inventory:FindFirstChild(inp)
 
@@ -132,3 +143,44 @@ Category.CreateInputButton("Max Upgrade", function (inp)
 		print('Max Upgraded: "'..inp..'" #'..item.Value)
 	end
 end)
+
+-- Teleports
+local Teleports = HUB_API.CreateCategory("Teleports")
+
+local TeleportSystemCount = 1
+for _, TeleportSystem in pairs(game.Workspace:GetChildren()) do
+
+	if TeleportSystem.Name == "TeleportSystem" then
+
+		local PartCount = 1
+		local CurrentTeleportSystemCount = TeleportSystemCount
+
+		for _, Part in pairs(TeleportSystem:GetChildren()) do
+			Teleports.CreateButton(tostring(CurrentTeleportSystemCount).." : "..PartCount, function()
+				if firetouchinterest == nil then
+					LocalPlayer.Character.HumanoidRootPart.CFrame = Part.CFrame
+				else
+					firetouchinterest(LocalPlayer.Character.HumanoidRootPart, Part, 0)
+					wait()
+					firetouchinterest(LocalPlayer.Character.HumanoidRootPart, Part, 1)
+				end
+			end)
+			PartCount = PartCount + 1
+		end
+
+		TeleportSystem.ChildAdded:Connect(function(child)
+			Teleports.CreateButton(tostring(CurrentTeleportSystemCount).." : "..PartCount, function()
+				if firetouchinterest == nil then
+					LocalPlayer.Character.HumanoidRootPart.CFrame = child.CFrame
+				else
+					firetouchinterest(LocalPlayer.Character.HumanoidRootPart, child, 0)
+					wait()
+					firetouchinterest(LocalPlayer.Character.HumanoidRootPart, child, 1)
+				end
+			end)
+			PartCount = PartCount + 1
+		end)
+
+		TeleportSystemCount = TeleportSystemCount + 1
+	end
+end
