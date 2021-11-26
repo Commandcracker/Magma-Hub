@@ -66,90 +66,54 @@ end)()
 -- Auto Rebirth
 local AutoRebirth = HUB_API.CreateCategory("Auto Rebirth")
 
+local Rebirths = {
+    200000,
+    125000,
+    100000,
+    75000,
+    50000,
+    25000,
+    10000,
+    5000,
+    2500,
+    1000,
+    500,
+    250,
+    100,
+    50,
+    25,
+    5,
+    1
+}
+
 local AutoRebirthCanAfford = AutoRebirth.CreateToggelButton("Auto Rebirth (Can Afford)")
 coroutine.wrap(function()
     while wait() do
         if AutoRebirthCanAfford.IsEnabeld() then
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(1000)
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(500)
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(250)
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(100)
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(50)
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(25)
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(5)
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(1)
+            for _,v in pairs(Rebirths) do
+                ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(v)
+            end
         end
     end
 end)()
 
-local AutoRebirth1 = AutoRebirth.CreateToggelButton("Auto Rebirth 1")
-coroutine.wrap(function()
-    while wait() do
-        if AutoRebirth1.IsEnabeld() then
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(1)
-        end
+function ReverseTable(t)
+    local reversedTable = {}
+    local itemCount = #t
+    for k, v in ipairs(t) do
+        reversedTable[itemCount + 1 - k] = v
     end
-end)()
+    return reversedTable
+end
 
-local AutoRebirth5 = AutoRebirth.CreateToggelButton("Auto Rebirth 5")
-coroutine.wrap(function()
-    while wait() do
-        if AutoRebirth5.IsEnabeld() then
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(5)
+for _,v in pairs(ReverseTable(Rebirths)) do
+    local AutoRebirthButton = AutoRebirth.CreateToggelButton("Auto Rebirth "..tostring(v))
+    local Rebirth           = v
+    coroutine.wrap(function()
+        while wait() do
+            if AutoRebirthButton.IsEnabeld() then
+                ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(Rebirth)
+            end
         end
-    end
-end)()
-
-local AutoRebirth25 = AutoRebirth.CreateToggelButton("Auto Rebirth 25")
-coroutine.wrap(function()
-    while wait() do
-        if AutoRebirth25.IsEnabeld() then
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(25)
-        end
-    end
-end)()
-
-local AutoRebirth50 = AutoRebirth.CreateToggelButton("Auto Rebirth 50")
-coroutine.wrap(function()
-    while wait() do
-        if AutoRebirth50.IsEnabeld() then
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(50)
-        end
-    end
-end)()
-
-local AutoRebirth100 = AutoRebirth.CreateToggelButton("Auto Rebirth 100")
-coroutine.wrap(function()
-    while wait() do
-        if AutoRebirth100.IsEnabeld() then
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(100)
-        end
-    end
-end)()
-
-local AutoRebirth250 = AutoRebirth.CreateToggelButton("Auto Rebirth 250")
-coroutine.wrap(function()
-    while wait() do
-        if AutoRebirth250.IsEnabeld() then
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(250)
-        end
-    end
-end)()
-
-local AutoRebirth500 = AutoRebirth.CreateToggelButton("Auto Rebirth 500")
-coroutine.wrap(function()
-    while wait() do
-        if AutoRebirth500.IsEnabeld() then
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(500)
-        end
-    end
-end)()
-
-local AutoRebirth1000 = AutoRebirth.CreateToggelButton("Auto Rebirth 1.000")
-coroutine.wrap(function()
-    while wait() do
-        if AutoRebirth1000.IsEnabeld() then
-            ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(1000)
-        end
-    end
-end)()
+    end)()
+end
