@@ -53,12 +53,12 @@ Teleports.CreateButton("Magnet Island", function()
 end)
 
 -- Auto Collect Coins
-local AutoCollectCoins = Category.CreateToggelButton("Auto Collect Coins (Equip Your Magnet)")
+local AutoCollectCoins = Category.CreateToggelButton("Auto Collect Coins")
 
 coroutine.wrap(function()
     while wait() do
         if AutoCollectCoins.IsEnabeld() then
-            ReplicatedStorage.Events.MagnetEvents.requestGrab:FireServer("6080000000", LocalPlayer.Character:FindFirstChildOfClass("Tool"))
+            ReplicatedStorage.Events.MagnetEvents.requestGrab:FireServer("6080000000", ReplicatedStorage.Tools["Lucky Long Tri-Magnet"])
         end
     end
 end)()
@@ -150,22 +150,6 @@ coroutine.wrap(function()
     while wait() do
         if AutoRebirth1000.IsEnabeld() then
             ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(1000)
-        end
-    end
-end)()
-
--- Auto Equip Magnet
-local AutoEquipMagnet = Category.CreateToggelButton("Auto Equip Magnet")
-
-coroutine.wrap(function()
-    while wait() do
-        if AutoEquipMagnet.IsEnabeld() then
-            if LocalPlayer.Character ~= nil and LocalPlayer.Character.Humanoid ~= nil then
-                local Magnet = LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
-                if Magnet ~= nil then
-                    LocalPlayer.Character.Humanoid:EquipTool(Magnet)
-                end
-            end
         end
     end
 end)()
