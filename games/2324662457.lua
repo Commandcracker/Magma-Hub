@@ -1,28 +1,29 @@
 -- Anime Fighters Simulator
+local Page = MagmaHub:addPage("Anime Fighters Simulator")
 
-local Category = HUB_API.CreateCategory("Anime Fighters Simulator")
+-- Auto Clicker
+local AutoClicker = Page:addToggle("Auto Clicker")
 
-local AutoClicker = Category.CreateToggelButton("Auto Clicker")
-
-coroutine.wrap(function()
+Threads:Add(function()
     while wait() do
-        if AutoClicker.IsEnabeld() then
+        if AutoClicker:IsEnabeld() then
             local Event = game:GetService("ReplicatedStorage").Remote.ClickerDamage
             Event:FireServer()
         end
     end
-end)()
+end)
 
-local AutoCollectCoins = Category.CreateToggelButton("Auto Collect Coins")
+-- Auto Collect Coins
+local AutoCollectCoins = Page:addToggle("Auto Collect Coins")
 
-coroutine.wrap(function()
+Threads:Add(function()
     while wait() do
-        if AutoCollectCoins.IsEnabeld() then
-            for i,v in pairs(game:GetService("Workspace").Effects:GetDescendants()) do
+        if AutoCollectCoins:IsEnabeld() then
+            for _,v in pairs(workspace.Effects:GetDescendants()) do
                 if v.Name == "Base" then
                     v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0,0,0)
                 end
             end
         end
     end
-end)()
+end)

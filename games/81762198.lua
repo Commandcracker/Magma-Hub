@@ -1,27 +1,37 @@
 -- Vehicle Simulator
-local Category = HUB_API.CreateCategory("Vehicle Simulator")
+local Page = MagmaHub:addPage("Vehicle Simulator")
 
+-- Services
+local Players = game:GetService("Players")
+
+-- Variables
+local LocalPlayer = Players.LocalPlayer
+
+-- Functions
 local function GetVehicle()
     local Vehicles = workspace.Vehicles:getChildren()
     for i=1,#Vehicles do
         if Vehicles[i]:findFirstChild("owner") then
-            if Vehicles[i].owner.Value == game.Players.LocalPlayer.Name then
+            if Vehicles[i].owner.Value == LocalPlayer.Name then
                 return Vehicles[i]
             end
         end
     end
 end
 
-Category.CreateButton("Teleport To Vehicle", function()
+-- Teleport To Vehicle
+Page:addButton("Teleport To Vehicle", function()
     local Vehicle = GetVehicle()
-    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Vehicle.Chassis.VehicleSeat.Position+Vehicle.Chassis.VehicleSeat.SeatOffset.Value)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(Vehicle.Chassis.VehicleSeat.Position+Vehicle.Chassis.VehicleSeat.SeatOffset.Value)
 end)
 
-Category.CreateButton("Give All Perks", function()
-    game:GetService("Players").LocalPlayer.UserId = 1099580
+-- Give All Perks
+Page:addButton("Give All Perks", function()
+    LocalPlayer.UserId = 1099580
 end)
 
-Category.CreateButton("TP to Crates", function()
+-- TP to Crates
+Page:addButton("TP to Crates", function()
     local crates = workspace:getChildren()
     for i=1,#crates do
         if crates[i].ClassName == "Model" then
@@ -32,9 +42,9 @@ Category.CreateButton("TP to Crates", function()
                     for i=1,#crates3 do
                         if crates3[i].ClassName == "MeshPart" then
                             if crates3[i]:findFirstChild("Smoke") then
-                                game.Players.LocalPlayer.Character:MoveTo(Vector3.new(crates3[i].Position.X+30,crates3[i].Position.Y+5,crates3[i].Position.Z))
+                                LocalPlayer.Character:MoveTo(Vector3.new(crates3[i].Position.X+30,crates3[i].Position.Y+5,crates3[i].Position.Z))
                                 wait()
-                                game.Players.LocalPlayer.Character.Humanoid:MoveTo(Vector3.new(crates3[i].Position.X,crates3[i].Position.Y,crates3[i].Position.Z))
+                                LocalPlayer.Character.Humanoid:MoveTo(Vector3.new(crates3[i].Position.X,crates3[i].Position.Y,crates3[i].Position.Z))
                                 wait(4)
                             end
                         end
@@ -45,7 +55,8 @@ Category.CreateButton("TP to Crates", function()
     end
 end)
 
-Category.CreateButton("Crate ESP", function()
+-- Crate ESP
+Page:addButton("Crate ESP", function()
     local crates = workspace:getChildren()
     for i=1,#crates do
         if crates[i].ClassName == "Model" then
@@ -85,20 +96,21 @@ Category.CreateButton("Crate ESP", function()
     end
 end)
 
-local AutoFarm = Category.CreateToggelButton("Auto Farm")
+-- Auto Farm
+local AutoFarm = Page:addToggle("Auto Farm")
 
-coroutine.wrap(function()
+Threads:Add(function()
     while wait() do
-        if AutoFarm.IsEnabeld() then
+        if AutoFarm:IsEnabeld() then
             local Vehicle 	= GetVehicle()
-            
+
             Vehicle.PrimaryPart = Vehicle.Chassis.VehicleSeat
             Vehicle:SetPrimaryPartCFrame(CFrame.new(3026, 233, -20))--Teleports vehicle to highway
 
             local speed = 0
 
             pcall(function()
-                speed = game.Players.LocalPlayer.PlayerGui.CarGui.LocalScript.Variables.Speed.Value
+                speed = LocalPlayer.PlayerGui.CarGui.LocalScript.Variables.Speed.Value
             end)
 
             if speed <= 450 then
@@ -116,9 +128,10 @@ coroutine.wrap(function()
             wait(.1)
         end
     end
-end)()
+end)
 
-Category.CreateButton("Super Car", function()
+-- Super Car
+Page:addButton("Super Car", function()
     local Vehicle = GetVehicle()
     Vehicle.Handling.MaxSpeed.Value                     = 10000
     Vehicle.Handling.Torque.Value                       = 40000
@@ -129,28 +142,34 @@ Category.CreateButton("Super Car", function()
     Vehicle.Handling.TurboJump.TurboJumpHeight.Value    = 250
 end)
 
-Category.CreateInputButton("Max Speed", function(Input)
+-- Max Speed
+Page:addInput("Max Speed", function(Input)
     local Vehicle = GetVehicle()
     Vehicle.Handling.MaxSpeed.Value                 = Input
     Vehicle.Handling.SteeringRadiusConstant.Value   = 1500000
 end)
 
-Category.CreateInputButton("Torque", function(Input)
+-- Torque
+Page:addInput("Torque", function(Input)
     GetVehicle().Handling.Torque.Value = Input
 end)
 
-Category.CreateInputButton("Nitro Speed", function(Input)
+-- Nitro Speed
+Page:addInput("Nitro Speed", function(Input)
     GetVehicle().Handling.Nitro.NitroSpeed.Value = Input
 end)
 
-Category.CreateInputButton("Nitro Force", function(Input)
+-- Nitro Force
+Page:addInput("Nitro Force", function(Input)
     GetVehicle().Handling.Nitro.NitroForce.Value = Input
 end)
 
-Category.CreateInputButton("Turbo Jump Height", function(Input)
+-- Turbo Jump Height
+Page:addInput("Turbo Jump Height", function(Input)
     GetVehicle().Handling.TurboJump.TurboJumpHeight.Value = Input
 end)
 
-Category.CreateInputButton("Steering Force", function(Input)
+-- Steering Force
+Page:addInput("Steering Force", function(Input)
     GetVehicle().Handling.SteeringRadiusConstant.Value = Input
 end)

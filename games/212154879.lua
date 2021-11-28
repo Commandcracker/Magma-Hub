@@ -1,5 +1,5 @@
 -- Swordburst 2
-local Category = HUB_API.CreateCategory("Swordburst 2")
+local Page = MagmaHub:addPage("Swordburst 2")
 
 -- Services
 local Players = game:GetService("Players")
@@ -8,8 +8,8 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 -- Big Hit Box
-local BigHitBox = Category.CreateToggelButton("Big Hit Box",nil,function ()
-	for i,v in pairs(game.Workspace.Mobs:children()) do
+local BigHitBox = Page:addToggle("Big Hit Box", nil, function ()
+	for _,v in pairs(game.Workspace.Mobs:children()) do
 		if v:FindFirstChild("Head") then
 			v.HumanoidRootPart.Transparency = 1
 			v.HumanoidRootPart.Size         = Vector3.new(10, 10, 10)
@@ -17,24 +17,24 @@ local BigHitBox = Category.CreateToggelButton("Big Hit Box",nil,function ()
 	end
 end)
 
-coroutine.wrap(function()
+Threads:Add(function()
 	while wait() do
-		if BigHitBox.IsEnabeld() then
-			for i,v in pairs(game.Workspace.Mobs:children()) do
+		if BigHitBox:IsEnabeld() then
+			for _,v in pairs(game.Workspace.Mobs:children()) do
 				if v ~= nil and v:FindFirstChild("Head") and v:FindFirstChild("HumanoidRootPart") then
 					v.HumanoidRootPart.Transparency = 0.25
 					v.HumanoidRootPart.Size         = Vector3.new(30, 25, 30)
-					if BigHitBox.IsEnabeld() == false then break end
+					if BigHitBox:IsEnabeld() == false then break end
 				end
 			end
 		end
 	end
-end)()
+end)
 
 -- Reach
-Category.CreateButton("Reach",function ()
-	if game.Players.LocalPlayer.Character then
-		for i,p in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+Page:addButton("Reach", function ()
+	if LocalPlayer.Character then
+		for _,p in pairs(LocalPlayer.Character:GetChildren()) do
 			if p.Name == "RightWeapon" or p.Name == "LeftWeapon" then
 				for _,v in pairs(p.Tool:GetChildren()) do
 					v.Size = Vector3.new(50, 50, 50)
@@ -45,21 +45,22 @@ Category.CreateButton("Reach",function ()
 	end
 end)
 
-local InfiniteStamina = Category.CreateToggelButton("Infinite Stamina")
+-- Infinite Stamina
+local InfiniteStamina = Page:addToggle("Infinite Stamina")
 
-coroutine.wrap(function()
+Threads:Add(function()
 	while wait() do
-		if InfiniteStamina.IsEnabeld() then
-			if game.Players.LocalPlayer.Character then
-				game.Players.LocalPlayer.Character:WaitForChild("Entity").Stamina.Value = 100
+		if InfiniteStamina:IsEnabeld() then
+			if LocalPlayer.Character then
+				LocalPlayer.Character:WaitForChild("Entity").Stamina.Value = 100
 			end
 		end
 	end
-end)()
+end)
 
 -- Unlock All Gamepasses and AnimPacks
-Category.CreateButton("Unlock All Gamepasses and AnimPacks",function ()
-	local Profile = game.ReplicatedStorage.Profiles[game.Players.LocalPlayer.Name]
+Page:addButton("Unlock All Gamepasses and AnimPacks", function ()
+	local Profile = game.ReplicatedStorage.Profiles[LocalPlayer.Name]
 
 	-- Gamepasses
 	local CustomClothing    = Instance.new("BoolValue", Profile.Gamepasses)
@@ -83,7 +84,7 @@ Category.CreateButton("Unlock All Gamepasses and AnimPacks",function ()
 	Noble.Value = "SingleSword"
 
 	-- Fix AnimPacks Settings
-	local AnimPacksSettings = game.Players.LocalPlayer:WaitForChild("PlayerGui").CardinalUI.PlayerUI.MainFrame.TabFrames.Settings.AnimPacks
+	local AnimPacksSettings = LocalPlayer:WaitForChild("PlayerGui").CardinalUI.PlayerUI.MainFrame.TabFrames.Settings.AnimPacks
 
 	AnimPacksSettings.ChildAdded:Connect(function(child)
 		if child.Text == "[2HSword]Berserker" then
@@ -123,8 +124,8 @@ Category.CreateButton("Unlock All Gamepasses and AnimPacks",function ()
 end)
 
 -- Dismantle All
-Category.CreateInputButton("Dismantle All", function (inp)
-	for _,item in pairs(game.ReplicatedStorage.Profiles[game.Players.LocalPlayer.Name].Inventory:GetChildren()) do
+Page:addInput("Dismantle All", function (inp)
+	for _,item in pairs(game.ReplicatedStorage.Profiles[LocalPlayer.Name].Inventory:GetChildren()) do
 		if item.Name == inp then
 			game.ReplicatedStorage.Event:FireServer("Equipment", {"Dismantle", item})
 		   	print('Dismantled: "'..inp..'" #'..item.Value)
@@ -133,11 +134,11 @@ Category.CreateInputButton("Dismantle All", function (inp)
 end)
 
 -- Max Upgrade
-Category.CreateInputButton("Max Upgrade", function (inp)
-	local item = game.ReplicatedStorage.Profiles[game.Players.LocalPlayer.Name].Inventory:FindFirstChild(inp)
+Page:addInput("Max Upgrade", function (inp)
+	local item = game.ReplicatedStorage.Profiles[LocalPlayer.Name].Inventory:FindFirstChild(inp)
 
 	if item then
-		for i = 1, 100 do
+		for _ = 1, 100 do
 			game.ReplicatedStorage.Event:FireServer("Equipment", {"Upgrade", item, false})
 		end
 		print('Max Upgraded: "'..inp..'" #'..item.Value)
@@ -145,7 +146,7 @@ Category.CreateInputButton("Max Upgrade", function (inp)
 end)
 
 -- Teleports
-local Teleports = HUB_API.CreateCategory("Teleports")
+local Teleports = MagmaHub:addPage("Teleports")
 
 local TeleportSystemCount = 1
 for _, TeleportSystem in pairs(game.Workspace:GetChildren()) do
@@ -156,7 +157,7 @@ for _, TeleportSystem in pairs(game.Workspace:GetChildren()) do
 		local CurrentTeleportSystemCount = TeleportSystemCount
 
 		for _, Part in pairs(TeleportSystem:GetChildren()) do
-			Teleports.CreateButton(tostring(CurrentTeleportSystemCount).." : "..PartCount, function()
+			Teleports:addButton(tostring(CurrentTeleportSystemCount).." : "..PartCount, function()
 				if firetouchinterest == nil then
 					LocalPlayer.Character.HumanoidRootPart.CFrame = Part.CFrame
 				else
@@ -169,7 +170,7 @@ for _, TeleportSystem in pairs(game.Workspace:GetChildren()) do
 		end
 
 		TeleportSystem.ChildAdded:Connect(function(child)
-			Teleports.CreateButton(tostring(CurrentTeleportSystemCount).." : "..PartCount, function()
+			Teleports:addButton(tostring(CurrentTeleportSystemCount).." : "..PartCount, function()
 				if firetouchinterest == nil then
 					LocalPlayer.Character.HumanoidRootPart.CFrame = child.CFrame
 				else

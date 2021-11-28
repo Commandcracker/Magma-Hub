@@ -1,53 +1,41 @@
 -- Operation Scorpion
-local Category = HUB_API.CreateCategory("Operation Scorpion")
+local Page = MagmaHub:addPage("Operation Scorpion")
 
--- Config --
+-- Config
 local map           = game.Workspace.Map
 local terrain       = false
 local only_move_map = true
 
--- isInTable function --
-function isInTable(tableValue, toFind)
-	local found = false
-	for _,v in pairs(tableValue) do
-		if v==toFind then
-			found = true
-			break;
-		end
-	end
-	return found
-end
-
--- playerList --
+-- playerList
 local playerList = {}
 for _,v in pairs(game.Players:GetPlayers()) do table.insert(playerList, v.Name) end
-function Addplayer(player) if not isInTable(playerList, player.Name) then table.insert(playerList, player.Name) end end
+function Addplayer(player) if not Btable.Contains(playerList, player.Name) then table.insert(playerList, player.Name) end end
 game.Players.PlayerAdded:Connect(Addplayer)
 function Removeplayer(player) table.remove(playerList, player.Name) end
 game.Players.PlayerRemoving:Connect(Removeplayer)
 
--- Default variables --
-local player = game:GetService("Players").LocalPlayer
-local Storage = Instance.new("Folder",game:GetService("ReplicatedStorage"))
+-- Default variables
+local player    = game:GetService("Players").LocalPlayer
+local Storage   = Instance.new("Folder",game:GetService("ReplicatedStorage"))
 
-Category.CreateToggelButton(
+Page:addToggle(
     "Shoot through walls",
     function()
         if player.Character.HumanoidRootPart ~= nil then
             player.Character.HumanoidRootPart.Anchored = true
         end
-			
+
         if terrain then
             workspace.Terrain:CopyRegion(workspace.Terrain.MaxExtents).Parent = Storage
             workspace.Terrain:Clear()
         end
-        
+
         if only_move_map then
-            old_map_parent = map.Parent
-            map.Parent = Storage
+            old_map_parent  = map.Parent
+            map.Parent      = Storage
         else
             for _,v in pairs(workspace:children())do
-                if v:IsA("Terrain") or v:IsA("Camera") or isInTable(playerList, v.Name) then else
+                if v:IsA("Terrain") or v:IsA("Camera") or Btable.Contains(playerList, v.Name) then else
                     v.Parent = Storage
                 end
             end
@@ -62,7 +50,7 @@ Category.CreateToggelButton(
                 end
             end
         end
-        
+
         if only_move_map then
             map.Parent = old_map_parent
         else

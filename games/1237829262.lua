@@ -1,26 +1,26 @@
 -- Magnet Simulator
-local Category = HUB_API.CreateCategory("Magnet Simulator")
+local Page = MagmaHub:addPage("Magnet Simulator")
 
 -- Services
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Variables
-local LocalPlayer       = Players.LocalPlayer
+local LocalPlayer = Players.LocalPlayer
 
 -- Auto Sell
 local Sell      = game.Workspace.Rings.Sellx2
 local pos       = Sell.CFrame
-local AutoSell  = Category.CreateToggelButton("Auto Sell",nil,function()
+local AutoSell  = Page:addToggle("Auto Sell",nil,function()
     if firetouchinterest == nil then
         Sell.CanCollide = true
         Sell.CFrame     = pos
     end
 end)
 
-coroutine.wrap(function()
+Threads:Add(function()
     while wait() do
-        if AutoSell.IsEnabeld() then
+        if AutoSell:IsEnabeld() then
             if firetouchinterest == nil then
                 Sell.CanCollide = false
                 Sell.CFrame     = LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0,math.random(-1,1),0)
@@ -33,38 +33,40 @@ coroutine.wrap(function()
             end
         end
     end
-end)()
+end)
 
 LocalPlayer.PlayerGui.GameHUD.FullBackpack.Changed:Connect(function()
-    if AutoSell.IsEnabeld() then
+    if AutoSell:IsEnabeld() then
         LocalPlayer.PlayerGui.GameHUD.FullBackpack.Visible = false
     end
 end)
 
 -- Teleports
-local Teleports = HUB_API.CreateCategory("Teleports")
+local Teleports = MagmaHub:addPage("Teleports")
 
-Teleports.CreateButton("Spawn", function()
+-- Spawn
+Teleports:addButton("Spawn", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(127,14,-81)
 end)
 
-Teleports.CreateButton("Magnet Island", function()
+-- Magnet Island
+Teleports:addButton("Magnet Island", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-16,580,-273)
 end)
 
 -- Auto Collect Coins
-local AutoCollectCoins = Category.CreateToggelButton("Auto Collect Coins")
+local AutoCollectCoins = Page:addToggle("Auto Collect Coins")
 
-coroutine.wrap(function()
+Threads:Add(function()
     while wait() do
-        if AutoCollectCoins.IsEnabeld() then
+        if AutoCollectCoins:IsEnabeld() then
             ReplicatedStorage.Events.MagnetEvents.requestGrab:FireServer("6080000000", ReplicatedStorage.Tools["Lucky Long Tri-Magnet"])
         end
     end
-end)()
+end)
 
 -- Auto Rebirth
-local AutoRebirth = HUB_API.CreateCategory("Auto Rebirth")
+local AutoRebirth = MagmaHub:addPage("Auto Rebirth")
 
 local Rebirths = {
     200000,
@@ -86,34 +88,25 @@ local Rebirths = {
     1
 }
 
-local AutoRebirthCanAfford = AutoRebirth.CreateToggelButton("Auto Rebirth (Can Afford)")
-coroutine.wrap(function()
+local AutoRebirthCanAfford = AutoRebirth:addToggle("Auto Rebirth (Can Afford)")
+Threads:Add(function()
     while wait() do
-        if AutoRebirthCanAfford.IsEnabeld() then
+        if AutoRebirthCanAfford:IsEnabeld() then
             for _,v in pairs(Rebirths) do
                 ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(v)
             end
         end
     end
-end)()
+end)
 
-function ReverseTable(t)
-    local reversedTable = {}
-    local itemCount = #t
-    for k, v in ipairs(t) do
-        reversedTable[itemCount + 1 - k] = v
-    end
-    return reversedTable
-end
-
-for _,v in pairs(ReverseTable(Rebirths)) do
-    local AutoRebirthButton = AutoRebirth.CreateToggelButton("Auto Rebirth "..tostring(v))
+for _,v in pairs(Btable.Reverse(Rebirths)) do
+    local AutoRebirthButton = AutoRebirth:addToggle("Auto Rebirth "..tostring(v))
     local Rebirth           = v
-    coroutine.wrap(function()
+    Threads:Add(function()
         while wait() do
-            if AutoRebirthButton.IsEnabeld() then
+            if AutoRebirthButton:IsEnabeld() then
                 ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(Rebirth)
             end
         end
-    end)()
+    end)
 end

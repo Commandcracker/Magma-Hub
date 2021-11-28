@@ -1,42 +1,43 @@
 -- Dashing Simulator
-local DashingSimulatorCategory = HUB_API.CreateCategory("Dashing Simulator")
+local Page = MagmaHub:addPage("Dashing Simulator")
+
 -- Services
 local Players           = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Variables
-local LocalPlayer       = Players.LocalPlayer
+local LocalPlayer = Players.LocalPlayer
 
 -- Add Speed
-local AddSpeedButton = DashingSimulatorCategory.CreateToggelButton("Add Speed")
+local AddSpeedButton = Page:addToggle("Add Speed")
 
-coroutine.wrap(function()
+Threads:Add(function()
     while wait() do
-        if AddSpeedButton.IsEnabeld() then
+        if AddSpeedButton:IsEnabeld() then
             ReplicatedStorage.Events.AddSpeed:InvokeServer()
         end
     end
-end)()
+end)
 
 -- Auto Rebirth
-local AutoRebirthButton = DashingSimulatorCategory.CreateToggelButton("Auto Rebirth")
+local AutoRebirthButton = Page:addToggle("Auto Rebirth")
 
-coroutine.wrap(function()
+Threads:Add(function()
     while wait() do
-        if AutoRebirthButton.IsEnabeld() then
+        if AutoRebirthButton:IsEnabeld() then
             ReplicatedStorage.Events.Rebirth:InvokeServer()
         end
     end
-end)()
+end)
 
 -- Auto Collect Orbs
-local AutoCollectOrbsButton = DashingSimulatorCategory.CreateToggelButton("Auto Collect Orbs (Don't pick up orbs manually)")
+local AutoCollectOrbsButton = Page:addToggle("Auto Collect Orbs (Don't pick up orbs manually)")
 
-coroutine.wrap(function()
+Threads:Add(function()
     local CollectableOrbs = workspace.CollectableOrbs:GetChildren()
 
     while wait() do
-        if AutoCollectOrbsButton.IsEnabeld() then
+        if AutoCollectOrbsButton:IsEnabeld() then
             for _,Orb in pairs(CollectableOrbs) do
                 if Orb.Name == "35" and Orb.Small.Transparency == 0 then
                     if firetouchinterest == nil then
@@ -47,21 +48,21 @@ coroutine.wrap(function()
                         firetouchinterest(LocalPlayer.Character.HumanoidRootPart, Orb.Small, 1)
                     end
                     wait(2)
-                    if AutoCollectOrbsButton.IsEnabeld() == false then break end
+                    if AutoCollectOrbsButton:IsEnabeld() == false then break end
                 end
             end
         end
     end
-end)()
+end)
 
 -- Auto Collect Flowers
-local AutoCollectFlowersButton = DashingSimulatorCategory.CreateToggelButton("Auto Collect Flowers (Don't pick up flowers manually)")
+local AutoCollectFlowersButton = Page:addToggle("Auto Collect Flowers (Don't pick up flowers manually)")
 
-coroutine.wrap(function()
+Threads:Add(function()
     local Flowers = workspace.Flowers:GetChildren()
 
     while wait() do
-        if AutoCollectFlowersButton.IsEnabeld() then
+        if AutoCollectFlowersButton:IsEnabeld() then
             for _,Flower in pairs(Flowers) do
                 if Flower.Name == "30" and Flower.Main.Transparency == 0 then
                     if firetouchinterest == nil then
@@ -72,15 +73,15 @@ coroutine.wrap(function()
                         firetouchinterest(LocalPlayer.Character.HumanoidRootPart, Flower.Main, 1)
                     end
                     wait(2)
-                    if AutoCollectFlowersButton.IsEnabeld() == false then break end
+                    if AutoCollectFlowersButton:IsEnabeld() == false then break end
                 end
             end
         end
     end
-end)()
+end)
 
 -- Claim Chests
-DashingSimulatorCategory.CreateButton("Claim Chests", function()
+Page:addButton("Claim Chests", function()
     local Chests    = workspace.Chests:GetChildren()
     local Pos       = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 
@@ -101,25 +102,25 @@ DashingSimulatorCategory.CreateButton("Claim Chests", function()
 end)
 
 -- Auto Accept Race
-local AutoAcceptRace = DashingSimulatorCategory.CreateToggelButton("Auto Accept Race")
+local AutoAcceptRace = Page:addToggle("Auto Accept Race")
 
-coroutine.wrap(function()
+Threads:Add(function()
     while wait() do
-        if AutoAcceptRace.IsEnabeld() then
+        if AutoAcceptRace:IsEnabeld() then
             if LocalPlayer.PlayerGui.RaceGUI.Offer.Visible == true then
                 LocalPlayer.PlayerGui.RaceGUI.Offer.Visible = false 
                 ReplicatedStorage.Events.RaceRequest:FireServer()
             end
         end
     end
-end)()
+end)
 
 -- Win Race
-local WinRace = DashingSimulatorCategory.CreateToggelButton("Win Race")
+local WinRace = Page:addToggle("Win Race")
 
-coroutine.wrap(function()
+Threads:Add(function()
     while wait() do
-        if WinRace.IsEnabeld() then
+        if WinRace:IsEnabeld() then
             local Track = workspace.RaceTrack:FindFirstChildOfClass("Model")
 
             if Track ~= nil and Track:FindFirstChild("Counter") ~= nil and Track.Counter:FindFirstChild("SurfaceGui") ~= nil and Track.Counter.SurfaceGui:FindFirstChild("TextLabel") ~= nil and Track.Counter.SurfaceGui.TextLabel.Text == "2" then
@@ -128,10 +129,10 @@ coroutine.wrap(function()
             end
         end
     end
-end)()
+end)
 
 -- Discover Lands
-DashingSimulatorCategory.CreateButton("Discover Lands", function()
+Page:addButton("Discover Lands", function()
     local Discoveries = workspace.Discoveries:GetChildren()
     for _,Land in pairs(Discoveries) do
         ReplicatedStorage.Events.Discover:InvokeServer(Land.Name)
@@ -139,48 +140,48 @@ DashingSimulatorCategory.CreateButton("Discover Lands", function()
 end)
 
 -- Teleports
-local DashingSimulatorTeleportsCategory = HUB_API.CreateCategory("Teleports")
+local Teleports = MagmaHub:addPage("Teleports")
 
-DashingSimulatorTeleportsCategory.CreateButton("Spawn", function()
+Teleports:addButton("Spawn", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(55, 6 , -58)
 end)
 
-DashingSimulatorTeleportsCategory.CreateButton("Elite Island", function()
+Teleports:addButton("Elite Island", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(252, 6 , -3300)
 end)
 
-DashingSimulatorTeleportsCategory.CreateButton("Dessert Chest", function()
+Teleports:addButton("Dessert Chest", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-7870, 6 , 39)
 end)
 
-DashingSimulatorTeleportsCategory.CreateButton("Golden Chest", function()
+Teleports:addButton("Golden Chest", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(471, 17 , -27)
 end)
 
-DashingSimulatorTeleportsCategory.CreateButton("Cloud Land", function()
+Teleports:addButton("Cloud Land", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(442, 17 , 2)
 end)
 
-DashingSimulatorTeleportsCategory.CreateButton("Ice Land", function()
+Teleports:addButton("Ice Land", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(3085, 6 , -49)
 end)
 
-DashingSimulatorTeleportsCategory.CreateButton("Farm Ville", function()
+Teleports:addButton("Farm Ville", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1414, 6 , -41)
 end)
 
-DashingSimulatorTeleportsCategory.CreateButton("Sand Land", function()
+Teleports:addButton("Sand Land", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-7925, 6 , -6)
 end)
 
-DashingSimulatorTeleportsCategory.CreateButton("Moon", function()
+Teleports:addButton("Moon", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-322, 1879 , 3217)
 end)
 
-DashingSimulatorTeleportsCategory.CreateButton("Magma", function()
+Teleports:addButton("Magma", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1281, 1867 , 7342)
 end)
 
-DashingSimulatorTeleportsCategory.CreateButton("100 Rebirths", function()
+Teleports:addButton("100 Rebirths", function()
     LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-4664, 2221 , 7802)
 end)

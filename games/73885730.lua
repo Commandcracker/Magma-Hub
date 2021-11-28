@@ -1,32 +1,35 @@
 -- Prison Life
-local PrisonLifeCategory = HUB_API.CreateCategory("Prison Life")
+local Page = MagmaHub:addPage("Prison Life")
 
-PrisonLifeCategory.CreateButton("Give Remington 870", function()
-    local A_1   = game:GetService("Workspace")["Prison_ITEMS"].giver["Remington 870"].ITEMPICKUP
-    local Event = game:GetService("Workspace").Remote.ItemHandler
-    Event:InvokeServer(A_1)
+-- Services
+local Players = game:GetService("Players")
+
+-- Variables
+local LocalPlayer       = Players.LocalPlayer
+local ItemHandlerEvent  = workspace.Remote.ItemHandler
+local ItemGiver         = workspace["Prison_ITEMS"].giver
+
+-- Give Remington 870
+Page:addButton("Give Remington 870", function()
+    ItemHandlerEvent:InvokeServer(ItemGiver["Remington 870"].ITEMPICKUP)
 end)
 
-PrisonLifeCategory.CreateButton("Give M9", function()
-    local A_1   = game:GetService("Workspace")["Prison_ITEMS"].giver.M9.ITEMPICKUP
-    local Event = game:GetService("Workspace").Remote.ItemHandler
-    Event:InvokeServer(A_1)
+-- Give M9
+Page:addButton("Give M9", function()
+    ItemHandlerEvent:InvokeServer(ItemGiver.M9.ITEMPICKUP)
 end)
 
-PrisonLifeCategory.CreateButton("Give AK-47", function()
-    local A_1   = game:GetService("Workspace")["Prison_ITEMS"].giver["AK-47"].ITEMPICKUP
-    local Event = game:GetService("Workspace").Remote.ItemHandler
-    Event:InvokeServer(A_1)
+-- Give AK-47
+Page:addButton("Give AK-47", function()
+    ItemHandlerEvent:InvokeServer(ItemGiver["AK-47"].ITEMPICKUP)
 end)
 
-local AutoReload = PrisonLifeCategory.CreateToggelButton("Auto Reload")
+-- Auto Reload
+local AutoReload = Page:addToggle("Auto Reload")
 
-local Players       = game:GetService("Players")
-local LocalPlayer   = Players.LocalPlayer
-
-coroutine.wrap(function()
+Threads:Add(function()
     while wait() do
-        if AutoReload.IsEnabeld() then
+        if AutoReload:IsEnabeld() then
             local Tool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
             if Tool ~= nil then
                 local GunStates = require(Tool:FindFirstChildOfClass("ModuleScript"))
@@ -38,4 +41,4 @@ coroutine.wrap(function()
             end
         end
     end
-end)()
+end)

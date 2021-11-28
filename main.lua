@@ -9,9 +9,13 @@
 local UserInputService  = game:GetService("UserInputService")
 local VirtualUser       = game:GetService("VirtualUser")
 local Players           = game:GetService("Players")
+local RunService        = game:GetService("RunService")
+local HttpService       = game:GetService("HttpService")
+local TeleportService   = game:GetService("TeleportService")
 
 -- Variables
 local LocalPlayer = Players.LocalPlayer
+local Mouse       = LocalPlayer:GetMouse()
 
 -- Anti Kick Hook
 if hookmetamethod ~= nil and getnamecallmethod ~= nil then
@@ -35,10 +39,107 @@ if hookmetamethod ~= nil and getnamecallmethod ~= nil then
     end)
 end
 
--- Utilitys
-local util = {}
+-- Thrad Manager
+local function kill(thread: thread, f)
+	local env = getfenv(f)
+	function env:__index(k)
+		if type(env[k]) == "function" and coroutine.running() == thread then
+			return function()
+				coroutine.yield()
+			end
+		else
+			return env[k]
+		end
+	end
+	setfenv(f, setmetatable({}, env))
+	coroutine.resume(thread)
+end
 
-function util:DraggingEnabled(frame, parent)
+local TM 	= {}
+TM.__index 	= TM
+
+function TM.new()
+	return setmetatable({
+		threads = {}
+	}, TM)
+end
+
+function TM:Add(Function)
+	local thread = coroutine.create(Function)
+	table.insert(self.threads, {thread, Function})
+	coroutine.resume(thread)
+end
+
+function TM:Cleanup()
+	for _,v in pairs(self.threads) do
+		kill(v[1], v[2])
+	end
+end
+
+Threads = TM.new()
+
+-- Better Local Player
+BLP = {}
+
+function BLP.Respawn()
+	local char = LocalPlayer.Character
+	if char:FindFirstChildOfClass("Humanoid") then char:FindFirstChildOfClass("Humanoid"):ChangeState(15) end
+	char:ClearAllChildren()
+	local newChar 	= Instance.new("Model")
+	newChar.Parent 	= workspace
+	LocalPlayer.Character = newChar
+	wait()
+	LocalPlayer.Character = char
+	newChar:Destroy()
+end
+
+function BLP.Refresh()
+	local Human = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid", true)
+	local pos 	= Human and Human.RootPart and Human.RootPart.CFrame
+	local pos1 	= workspace.CurrentCamera.CFrame
+	BLP.Respawn()
+	task.spawn(function()
+		LocalPlayer.CharacterAdded:Wait():WaitForChild("Humanoid").RootPart.CFrame, workspace.CurrentCamera.CFrame = pos, wait() and pos1
+	end)
+end
+
+function BLP.Teleport(x: number | Vector3 | CFrame, y: number | Vector3, z: number, ...: number)
+	if typeof(x) == "CFrame" then
+		LocalPlayer.Character.HumanoidRootPart.CFrame = x
+	elseif typeof(x) == "Vector3" then
+		if typeof(y) == "Vector3" then
+			LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(x, y)
+		else
+			LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(x)
+		end
+	else
+		LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(x, y, z, ...)
+	end
+end
+
+-- Better Table
+Btable = {}
+
+function Btable.Reverse(Table: table)
+	local reversedTable = {}
+	local itemCount = #Table
+	for k, v in ipairs(Table) do
+		reversedTable[itemCount + 1 - k] = v
+	end
+	return reversedTable
+end
+
+function Btable.Contains(Table: table, Item)
+	for _, value in pairs(Table) do
+		if value == Item then return true end
+	end
+	return false
+end
+
+-- UI util
+local UIutil = {}
+
+function UIutil:DraggingEnabled(frame, parent)
     parent = parent or frame
 
     local dragging = false
@@ -66,275 +167,325 @@ function util:DraggingEnabled(frame, parent)
 
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
-            local delta = input.Position - mousePos
-            parent.Position  = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+            local delta     = input.Position - mousePos
+            parent.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
         end
     end)
 end
 
--- GUI
-local GUI
-if pcall(function()return game.CoreGui.Name end) then
-    GUI = Instance.new("ScreenGui", game.CoreGui)
-else
-    GUI = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
-end
+-- Magma UI
+local MagmaUI = {}
+local Page    = {}
 
-GUI.ResetOnSpawn = false
-GUI.AutoLocalize = false
-GUI.DisplayOrder = 999999999
+MagmaUI.__index  = MagmaUI
+Page.__index     = Page
 
-local MainFrame             = Instance.new("Frame", GUI)
-MainFrame.BackgroundColor3  = Color3.fromRGB(24, 24, 24)
-MainFrame.Size              = UDim2.new(0, 500, 0, 320)
-MainFrame.Position          = UDim2.new(0.5, -250, 0, -356)
-MainFrame.BorderSizePixel   = 0
-
-local RGBBar                = Instance.new("Frame", MainFrame)
-RGBBar.BorderSizePixel      = 0
-RGBBar.Size                 = UDim2.new(1, 0, 0, 4)
-RGBBar.BackgroundColor3     = Color3.fromRGB(255, 78, 1)
-RGBBar.ZIndex               = 2
-
---[[
-coroutine.wrap(function()
-    local function zigzag(X) return math.acos(math.cos(X*math.pi))/math.pi end
-    local counter = 0
-
-    while wait(.1) do
-        RGBBar.BackgroundColor3 = Color3.fromHSV(zigzag(counter),1,1)
-        counter = counter + .01
-    end
-end)()
-]]
-
-local TopBar            = Instance.new("Frame", MainFrame)
-TopBar.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-TopBar.Size             = UDim2.new(1,0,0,35)
-TopBar.BorderSizePixel  = 0
-
-local Title                     = Instance.new("TextLabel", TopBar)
-Title.Size                      = UDim2.new(0.5, 0, 1, 0)
-Title.Position                  = UDim2.new(0, 10, 0, 0)
-Title.Font                      = Enum.Font.GothamBold
-Title.Text                      = "Magma Hub"
-Title.TextSize                  = 14
-Title.TextXAlignment            = Enum.TextXAlignment.Left
-Title.BackgroundTransparency    = 1
-Title.TextColor3                = Color3.fromRGB(255, 255, 255)
-
-local ExitButton                    = Instance.new("TextButton", TopBar)
-ExitButton.Text                     = 'X'
-ExitButton.BorderSizePixel          = 0
-ExitButton.Size                     = UDim2.new(0, 35, 0, 35)
-ExitButton.Position                 = UDim2.new(1, -35, 0, 0)
-ExitButton.BackgroundColor3         = Color3.fromRGB(10, 10, 10)
-ExitButton.TextColor3               = Color3.fromRGB(255, 255, 255)
-ExitButton.Font                     = Enum.Font.GothamBold
-ExitButton.TextSize                 = 14
-ExitButton.MouseButton1Click:Connect(function()
-    MainFrame:TweenPosition(UDim2.new(MainFrame.Position.X.Scale,MainFrame.Position.X.Offset,1,0), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 1)
-	wait(1)
-    GUI:Destroy()
-    script:Destroy()
-end)
-
---[[
-local MinimizeButton                    = Instance.new("TextButton", TopBar)
-MinimizeButton.Text                     = "─"
-MinimizeButton.BorderSizePixel          = 0
-MinimizeButton.Size                     = UDim2.new(0,35,0,35)
-MinimizeButton.Position                 = UDim2.new(1, -70, 0, 0)
-MinimizeButton.BackgroundColor3         = Color3.fromRGB(10, 10, 10)
-MinimizeButton.TextColor3               = Color3.fromRGB(255, 255, 255)
-MinimizeButton.Font                     = Enum.Font.GothamBold
-MinimizeButton.TextSize                 = 14
-]]
-
-local CategoryFrame                = Instance.new("ScrollingFrame", MainFrame)
-CategoryFrame.Size                 = UDim2.new(0, 100, 1, -35)
-CategoryFrame.Position             = UDim2.new(0, 0, 0, 35)
-CategoryFrame.BorderSizePixel      = 0
-CategoryFrame.ScrollBarThickness   = 5
-CategoryFrame.BackgroundColor3     = Color3.fromRGB(14, 14, 14)
-CategoryFrame.ScrollBarImageColor3 = Color3.fromRGB(4, 4, 4)
-CategoryFrame.AutomaticCanvasSize  = Enum.AutomaticSize.Y
-
-local CategoryFrame_UIListLayout    = Instance.new("UIListLayout", CategoryFrame)
-CategoryFrame_UIListLayout.Padding  = UDim.new(0, 5)
-
--- Legacy HUB_API
-HUB_API = {}
-local CurrentCategory = nil
-
-function HUB_API.CreateCategory(Text)
-    local Category = {}
-
-    Category.ModuleList                          = Instance.new("ScrollingFrame", MainFrame)
-    Category.ModuleList.Size                     = UDim2.new(1, -105, 1, -40)
-    Category.ModuleList.Position                 = UDim2.new(0, 105, 0, 40)
-    Category.ModuleList.BorderSizePixel          = 0
-    Category.ModuleList.ScrollBarThickness       = 5
-    Category.ModuleList.BackgroundTransparency   = 1
-    Category.ModuleList.ScrollBarImageColor3     = Color3.fromRGB(4, 4, 4)
-    Category.ModuleList.Visible                  = false
-    Category.ModuleList.AutomaticCanvasSize      = Enum.AutomaticSize.Y
-
-    Category.ModuleList_UIListLayout            = Instance.new("UIListLayout", Category.ModuleList)
-    Category.ModuleList_UIListLayout.Padding    = UDim.new(0, 5)
-
-    Category.Button                      = Instance.new("TextButton", CategoryFrame)
-    Category.Button.Size                 = UDim2.new(1, 0, 0, 35)
-    Category.Button.Font                 = Enum.Font.Gotham
-    Category.Button.Text                 = Text
-    Category.Button.TextSize             = 14
-    Category.Button.TextColor3           = Color3.fromRGB(255, 255, 255)
-    Category.Button.TextWrapped          = true
-    Category.Button.BackgroundColor3     = Color3.fromRGB(14, 14, 14)
-    Category.Button.BorderSizePixel      = 0
-    Category.Button.TextTransparency     = 0.65
-
-    function Category.Hide()
-        Category.ModuleList.Visible         = false
-        Category.Button.Font                = Enum.Font.Gotham
-        Category.Button.TextTransparency    = 0.65
+function MagmaUI.new()
+    local GUI
+    if pcall(function()return game.CoreGui.Name end) then
+        GUI = Instance.new("ScreenGui", game.CoreGui)
+    else
+        GUI = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
     end
 
-    function Category.Show()
-        if CurrentCategory ~= nil then
-            CurrentCategory.Hide()
+    GUI.ResetOnSpawn = false
+    GUI.AutoLocalize = false
+    GUI.DisplayOrder = 999999999
+
+    local MainFrame             = Instance.new("Frame", GUI)
+    MainFrame.BackgroundColor3  = Color3.fromRGB(24, 24, 24)
+    MainFrame.Size              = UDim2.new(0, 500, 0, 320)
+    MainFrame.Position          = UDim2.new(0.5, -250, 0, -356)
+    MainFrame.BorderSizePixel   = 0
+
+    local RGBBar                = Instance.new("Frame", MainFrame)
+    RGBBar.BorderSizePixel      = 0
+    RGBBar.Size                 = UDim2.new(1, 0, 0, 4)
+    RGBBar.BackgroundColor3     = Color3.fromRGB(255, 78, 1)
+    RGBBar.ZIndex               = 2
+
+    --[[
+    Threads:Add(function()
+        local function zigzag(X) return math.acos(math.cos(X*math.pi))/math.pi end
+        local counter = 0
+
+        while wait(.1) do
+            RGBBar.BackgroundColor3 = Color3.fromHSV(zigzag(counter),1,1)
+            counter = counter + .01
         end
+    end)
+    ]]
 
-        Category.ModuleList.Visible         = true
-        CurrentCategory                     = Category
-        Category.Button.Font                = Enum.Font.GothamSemibold
-        Category.Button.TextTransparency    = 0
-    end
+    local TopBar            = Instance.new("Frame", MainFrame)
+    TopBar.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+    TopBar.Size             = UDim2.new(1,0,0,35)
+    TopBar.BorderSizePixel  = 0
 
-    Category.Button.MouseButton1Click:Connect(function()
-        Category.Show()
+    local Title                     = Instance.new("TextLabel", TopBar)
+    Title.Size                      = UDim2.new(0.5, 0, 1, 0)
+    Title.Position                  = UDim2.new(0, 10, 0, 0)
+    Title.Font                      = Enum.Font.GothamBold
+    Title.Text                      = "Magma Hub"
+    Title.TextSize                  = 14
+    Title.TextXAlignment            = Enum.TextXAlignment.Left
+    Title.BackgroundTransparency    = 1
+    Title.TextColor3                = Color3.fromRGB(255, 255, 255)
+
+    local ExitButton                    = Instance.new("TextButton", TopBar)
+    ExitButton.Text                     = 'X'
+    ExitButton.BorderSizePixel          = 0
+    ExitButton.Size                     = UDim2.new(0, 35, 0, 35)
+    ExitButton.Position                 = UDim2.new(1, -35, 0, 0)
+    ExitButton.BackgroundColor3         = Color3.fromRGB(10, 10, 10)
+    ExitButton.TextColor3               = Color3.fromRGB(255, 255, 255)
+    ExitButton.Font                     = Enum.Font.GothamBold
+    ExitButton.TextSize                 = 14
+    ExitButton.MouseButton1Click:Connect(function()
+        MainFrame:TweenPosition(UDim2.new(MainFrame.Position.X.Scale,MainFrame.Position.X.Offset,1,0), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 1)
+        wait(1)
+        GUI:Destroy()
+        warn('[Magma Hub] Terminating Threads (ignore errors like "attempt to call a nil value")')
+        Threads:Cleanup()
+        script:Destroy()
     end)
 
-    function Category.CreateButton(Text, Function)
-        local Module = {}
+    --[[
+    local MinimizeButton                    = Instance.new("TextButton", TopBar)
+    MinimizeButton.Text                     = "─"
+    MinimizeButton.BorderSizePixel          = 0
+    MinimizeButton.Size                     = UDim2.new(0,35,0,35)
+    MinimizeButton.Position                 = UDim2.new(1, -70, 0, 0)
+    MinimizeButton.BackgroundColor3         = Color3.fromRGB(10, 10, 10)
+    MinimizeButton.TextColor3               = Color3.fromRGB(255, 255, 255)
+    MinimizeButton.Font                     = Enum.Font.GothamBold
+    MinimizeButton.TextSize                 = 14
+    ]]
 
-        Module.Frame                    = Instance.new("Frame", Category.ModuleList)
-        Module.Frame.BorderSizePixel    = 0
-        Module.Frame.BackgroundColor3   = Color3.fromRGB(14, 14, 14)
-        Module.Frame.Size               = UDim2.new(1, -10, 0, 30)
+    local PageFrame                     = Instance.new("ScrollingFrame", MainFrame)
+    PageFrame.Size                      = UDim2.new(0, 100, 1, -35)
+    PageFrame.Position                  = UDim2.new(0, 0, 0, 35)
+    PageFrame.BorderSizePixel           = 0
+    PageFrame.ScrollBarThickness        = 5
+    PageFrame.BackgroundColor3          = Color3.fromRGB(14, 14, 14)
+    PageFrame.ScrollBarImageColor3      = Color3.fromRGB(4, 4, 4)
+    PageFrame.AutomaticCanvasSize       = Enum.AutomaticSize.Y
 
-        Module.TextLabel                            = Instance.new("TextLabel", Module.Frame)
-        Module.TextLabel.TextColor3                 = Color3.new(1,1,1)
-        Module.TextLabel.Text                       = Text
-        Module.TextLabel.TextWrapped                = true
-        Module.TextLabel.Font                       = Enum.Font.Gotham
-        Module.TextLabel.BackgroundTransparency     = 1
-        Module.TextLabel.Position                   = UDim2.new(0.02, 0, 0, 0)
-        Module.TextLabel.TextXAlignment             = Enum.TextXAlignment.Left
-        Module.TextLabel.Size                       = UDim2.new(0, 313, 1, 0)
-        Module.TextLabel.TextSize                   = 12
+    local PageFrame_UIListLayout    = Instance.new("UIListLayout", PageFrame)
+    PageFrame_UIListLayout.Padding  = UDim.new(0, 5)
 
-        Module.Button                   = Instance.new("TextButton", Module.Frame)
-        Module.Button.TextColor3        = Color3.new(1,1,1)
-        Module.Button.Text              = "Run"
-        Module.Button.Font              = Enum.Font.Gotham
-        Module.Button.Position          = UDim2.new(0.89, 0, 0.25, -2)
-        Module.Button.TextSize          = 12
-        Module.Button.Size              = UDim2.new(0, 35, 1, -10)
-        Module.Button.BorderSizePixel   = 0
-        Module.Button.BackgroundColor3  = Color3.fromRGB(20, 20, 20)
+    return setmetatable({
+        MainFrame = MainFrame,
+        PageFrame = PageFrame
+    }, MagmaUI)
+end
 
-        if Function ~= nil then
-            Module.Button.MouseButton1Click:Connect(Function)
-        end
+function Page.new(lib, title: string)
+    local ModuleList                    = Instance.new("ScrollingFrame", lib.MainFrame)
+    ModuleList.Size                     = UDim2.new(1, -105, 1, -40)
+    ModuleList.Position                 = UDim2.new(0, 105, 0, 40)
+    ModuleList.BorderSizePixel          = 0
+    ModuleList.ScrollBarThickness       = 5
+    ModuleList.BackgroundTransparency   = 1
+    ModuleList.ScrollBarImageColor3     = Color3.fromRGB(4, 4, 4)
+    ModuleList.Visible                  = false
+    ModuleList.AutomaticCanvasSize      = Enum.AutomaticSize.Y
 
-        return Module
+    local ModuleList_UIListLayout      = Instance.new("UIListLayout", ModuleList)
+    ModuleList_UIListLayout.Padding    = UDim.new(0, 5)
+
+    local Button                = Instance.new("TextButton", lib.PageFrame)
+    Button.Size                 = UDim2.new(1, 0, 0, 35)
+    Button.Font                 = Enum.Font.Gotham
+    Button.Text                 = title
+    Button.TextSize             = 14
+    Button.TextColor3           = Color3.fromRGB(255, 255, 255)
+    Button.TextWrapped          = true
+    Button.BackgroundColor3     = Color3.fromRGB(14, 14, 14)
+    Button.BorderSizePixel      = 0
+    Button.TextTransparency     = 0.65
+
+    return setmetatable({
+        lib         = lib,
+        ModuleList  = ModuleList,
+        Button      = Button
+    }, Page)
+end
+
+function Page:Hide()
+    self.ModuleList.Visible         = false
+    self.Button.Font                = Enum.Font.Gotham
+    self.Button.TextTransparency    = 0.65
+end
+
+function Page:Show()
+    if self.lib.CurrentPage ~= nil then
+        self.lib.CurrentPage:Hide()
     end
 
-    function Category.CreateToggelButton(Text, EnableFunction, DisableFunction)
-        local Module        = Category.CreateButton(Text)
-        Module.Button.Text  = "Off"
-        local Toggel        = false
+    self.ModuleList.Visible         = true
+    self.lib.CurrentPage            = self
+    self.Button.Font                = Enum.Font.GothamSemibold
+    self.Button.TextTransparency    = 0
+end
 
-        Module.Button.MouseButton1Click:Connect(function()
-            if Toggel then
-                Toggel = false
-                Module.Button.Text = "Off"
-                if DisableFunction ~= nil then
-                    DisableFunction()
-                end
-            else
-                Toggel = true
-                Module.Button.Text = "On"
-                if EnableFunction ~= nil then
-                    EnableFunction()
-                end
+function Page:addButton(title: string, callback)
+    local Button = {}
+
+    Button.Frame                    = Instance.new("Frame", self.ModuleList)
+    Button.Frame.BorderSizePixel    = 0
+    Button.Frame.BackgroundColor3   = Color3.fromRGB(14, 14, 14)
+    Button.Frame.Size               = UDim2.new(1, -10, 0, 30)
+
+    Button.TextLabel                            = Instance.new("TextLabel", Button.Frame)
+    Button.TextLabel.TextColor3                 = Color3.new(1,1,1)
+    Button.TextLabel.Text                       = title
+    Button.TextLabel.TextWrapped                = true
+    Button.TextLabel.Font                       = Enum.Font.Gotham
+    Button.TextLabel.BackgroundTransparency     = 1
+    Button.TextLabel.Position                   = UDim2.new(0.02, 0, 0, 0)
+    Button.TextLabel.TextXAlignment             = Enum.TextXAlignment.Left
+    Button.TextLabel.Size                       = UDim2.new(0, 313, 1, 0)
+    Button.TextLabel.TextSize                   = 12
+
+    Button.Button                   = Instance.new("TextButton", Button.Frame)
+    Button.Button.TextColor3        = Color3.new(1,1,1)
+    Button.Button.Text              = "Run"
+    Button.Button.Font              = Enum.Font.Gotham
+    Button.Button.Position          = UDim2.new(0.89, 0, 0.25, -2)
+    Button.Button.TextSize          = 12
+    Button.Button.Size              = UDim2.new(0, 35, 1, -10)
+    Button.Button.BorderSizePixel   = 0
+    Button.Button.BackgroundColor3  = Color3.fromRGB(20, 20, 20)
+
+    function Button:connect(callback)
+        Button.Button.MouseButton1Click:Connect(callback)
+    end
+
+    if callback then
+        Button.Button.MouseButton1Click:Connect(callback)
+    end
+
+    return Button
+end
+
+function Page:addToggle(title: string, EnableFunction, DisableFunction)
+    local Button        = self:addButton(title)
+    Button.connect      = nil
+    Button.Button.Text  = "Off"
+
+    local Toggel = false
+
+    Button.Button.MouseButton1Click:Connect(function()
+        if Toggel then
+            Toggel = false
+            Button.Button.Text = "Off"
+            if DisableFunction ~= nil then
+                DisableFunction()
             end
-        end)
-
-        function Module.IsEnabeld()
-            return Toggel
+        else
+            Toggel = true
+            Button.Button.Text = "On"
+            if EnableFunction ~= nil then
+                EnableFunction()
+            end
         end
+    end)
 
-        function Module.SetEnableFunction(Function)
-            EnableFunction = Function
-        end
-
-        function Module.SetDisableFunction(Function)
-            DisableFunction = Function
-        end
-
-        return Module
+    function Button:IsEnabeld()
+        return Toggel
     end
 
-    function Category.CreateInputButton(Text, Function)
-        local Module = Category.CreateButton(Text)
-
-        Module.TextLabel.Size = UDim2.new(0, 231, 1, 0)
-
-        Module.TextBox                     = Instance.new("TextBox", Module.Frame)
-        Module.TextBox.TextColor3          = Color3.new(1,1,1)
-        Module.TextBox.Text                = ""
-        Module.TextBox.Font                = Enum.Font.Gotham
-        Module.TextBox.Position            = UDim2.new(1, -125, 0.25, -2)
-        Module.TextBox.Size                = UDim2.new(0, 75, 1, -10)
-        Module.TextBox.TextSize            = 12
-        Module.TextBox.BorderSizePixel     = 0
-        Module.TextBox.BackgroundColor3    = Color3.fromRGB(20, 20, 20)
-
-        Module.Button.MouseButton1Click:Connect(function()
-            Function(Module.TextBox.Text)
-        end)
-
-        return Module
+    function Button:SetEnableFunction(Function)
+        EnableFunction = Function
     end
 
-    return Category
+    function Button:SetDisableFunction(Function)
+        DisableFunction = Function
+    end
+
+    return Button
 end
 
--- Scripts
-local LocalPlayerCategory = HUB_API.CreateCategory("Local Player")
-LocalPlayerCategory.Show()
+function Page:addInput(title: string, Function)
+    local Button = self:addButton(title)
 
-LocalPlayerCategory.CreateInputButton("WalkSpeed", function(inp)
-    game.Players.LocalPlayer.Character:WaitForChild("Humanoid").WalkSpeed = inp
+    Button.TextLabel.Size = UDim2.new(0, 231, 1, 0)
+
+    Button.TextBox                     = Instance.new("TextBox", Button.Frame)
+    Button.TextBox.TextColor3          = Color3.new(1,1,1)
+    Button.TextBox.Text                = ""
+    Button.TextBox.Font                = Enum.Font.Gotham
+    Button.TextBox.Position            = UDim2.new(1, -125, 0.25, -2)
+    Button.TextBox.Size                = UDim2.new(0, 75, 1, -10)
+    Button.TextBox.TextSize            = 12
+    Button.TextBox.BorderSizePixel     = 0
+    Button.TextBox.BackgroundColor3    = Color3.fromRGB(20, 20, 20)
+
+    Button.Button.MouseButton1Click:Connect(function()
+        if Function ~= nil then
+            Function(Button.TextBox.Text)
+        end
+    end)
+
+    return Button
+end
+
+function MagmaUI:addPage(title: string)
+    local page = Page.new(self,title)
+    page.Button.MouseButton1Click:Connect(function()
+        page:Show()
+    end)
+    return page
+end
+
+function MagmaUI:load()
+    UIutil:DraggingEnabled(self.MainFrame)
+    self.MainFrame:TweenPosition(UDim2.new(0.5, -250, 0.5, -196), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 1)
+end
+
+function MagmaUI:Notify(text: string, mode: number)
+    if mode == nil or mode == 0 then
+        print("[Magma Hub] "..text)
+    elseif mode == 1 then
+        warn("[Magma Hub] "..text)
+    end
+    game.StarterGui:SetCore("SendNotification",{
+        Title="Magma Hub",
+        Text=text,
+        Duration=2
+    })
+end
+
+-- Init
+MagmaHub = MagmaUI.new()
+
+-- Local Player Page
+local LocalPlayerPage = MagmaHub:addPage("Local Player")
+LocalPlayerPage:Show()
+
+-- WalkSpeed
+LocalPlayerPage:addInput("WalkSpeed", function(input)
+    LocalPlayer.Character:WaitForChild("Humanoid").WalkSpeed = input
 end)
 
-LocalPlayerCategory.CreateInputButton("JumpPower", function(inp)
+-- JumpPower
+LocalPlayerPage:addInput("JumpPower", function(input)
     local Humanoid          = LocalPlayer.Character:WaitForChild("Humanoid")
     Humanoid.UseJumpPower   = true
-    Humanoid.JumpPower      = inp
+    Humanoid.JumpPower      = input
 end)
 
-LocalPlayerCategory.CreateInputButton("Teleport To Player", function(inp)
-    for _,player in pairs(game.Players:GetPlayers()) do
-        if inp == string.sub(player.Name,1,#inp) then
-            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame + Vector3.new(0, 0, -1)
+-- Teleport To Player
+LocalPlayerPage:addInput("Teleport To Player", function(input)
+    for _,player in pairs(Players:GetPlayers()) do
+        if input == string.sub(player.Name,1,#input) then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame + Vector3.new(0, 0, -1)
         end
     end
 end)
 
-LocalPlayerCategory.CreateButton("Fullbright", function()
+-- Fullbright
+LocalPlayerPage:addButton("Fullbright", function()
     local Light = game:GetService("Lighting")
 
     local function dofullbright()
@@ -352,39 +503,39 @@ LocalPlayerCategory.CreateButton("Fullbright", function()
     Light.LightingChanged:Connect(dofullbright)
 end)
 
-local NoclipButton = LocalPlayerCategory.CreateToggelButton("Noclip")
+-- Noclip
+local NoclipButton = LocalPlayerPage:addToggle("Noclip")
 
-coroutine.wrap(function()
-    while true do
-        if NoclipButton.IsEnabeld() then
-            for _,v in pairs(game.Players.LocalPlayer.Character:children()) do
+Threads:Add(function()
+    while game:GetService("RunService").Stepped:Wait() do
+        if NoclipButton:IsEnabeld() then
+            for _,v in pairs(LocalPlayer.Character:GetChildren()) do
                 pcall(function()
-                    if v.className == "Part" then
+                    if v.ClassName == "Part" then
                         v.CanCollide = false
                     end
                 end)
             end
         end
-        game:service("RunService").Stepped:wait()
-    end
-end)()
-
-local InfinityJumpButton = LocalPlayerCategory.CreateToggelButton("Infinity Jump")
-
-game:GetService("UserInputService").JumpRequest:connect(function()
-    if InfinityJumpButton.IsEnabeld() then
-        game.Players.LocalPlayer.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
     end
 end)
 
-LocalPlayerCategory.CreateButton("Suicid", function()
-    game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Health = 0
+-- Infinity Jump
+local InfinityJumpButton = LocalPlayerPage:addToggle("Infinity Jump")
+
+UserInputService.JumpRequest:Connect(function()
+    if InfinityJumpButton:IsEnabeld() then
+        LocalPlayer.Character:FindFirstChildOfClass'Humanoid':ChangeState("Jumping")
+    end
+end)
+
+-- Suicid
+LocalPlayerPage:addButton("Suicid", function()
+    LocalPlayer.Character:WaitForChild("Humanoid").Health = 0
 end)
 
 -- Fly
-local FlyButton = LocalPlayerCategory.CreateToggelButton("Fly")
-local mouse     = game.Players.LocalPlayer:GetMouse()
-local plr       = game.Players.LocalPlayer
+local FlyButton = LocalPlayerPage:addToggle("Fly")
 local ctrl      = {f = 0, b = 0, l = 0, r = 0}
 local lastctrl  = {f = 0, b = 0, l = 0, r = 0}
 local maxspeed  = 50
@@ -393,25 +544,27 @@ local bg        = nil
 local bv        = nil
 
 function Fly()
-    local Torso = plr.Character:FindFirstChild("Torso")
+    local Torso = LocalPlayer.Character:FindFirstChild("Torso")
 
     if Torso == nil then
-        Torso = plr.Character:FindFirstChild("LowerTorso")
+        Torso = LocalPlayer.Character:FindFirstChild("LowerTorso")
     end
 
     if Torso == nil then
-        Torso = plr.Character:FindFirstChild("HumanoidRootPart")
+        Torso = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     end
 
-    bg = Instance.new("BodyGyro", Torso)
-    bg.P = 9e4
-    bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
-    bg.cframe = Torso.CFrame
-    bv = Instance.new("BodyVelocity", Torso)
+    bg              = Instance.new("BodyGyro", Torso)
+    bg.P            = 9e4
+    bg.maxTorque    = Vector3.new(9e9, 9e9, 9e9)
+    bg.cframe       = Torso.CFrame
+
+    bv          = Instance.new("BodyVelocity", Torso)
     bv.velocity = Vector3.new(0,0.1,0)
     bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+
     repeat wait()
-        plr.Character.Humanoid.PlatformStand = true
+        LocalPlayer.Character.Humanoid.PlatformStand = true
         if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
             speed = speed+.5+(speed/maxspeed)
             if speed > maxspeed then
@@ -432,7 +585,7 @@ function Fly()
             bv.velocity = Vector3.new(0,0.1,0)
         end
         bg.cframe = game.Workspace.CurrentCamera.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speed/maxspeed),0,0)
-    until not FlyButton.IsEnabeld()
+    until not FlyButton:IsEnabeld()
     ctrl = {f = 0, b = 0, l = 0, r = 0}
     lastctrl = {f = 0, b = 0, l = 0, r = 0}
     speed = 0
@@ -440,11 +593,10 @@ function Fly()
     bg = nil
     bv:Destroy()
     bv = nil
-    plr.Character.Humanoid.PlatformStand = false
+    LocalPlayer.Character.Humanoid.PlatformStand = false
 end
 
---Controls
-mouse.KeyDown:connect(function(key)
+Mouse.KeyDown:Connect(function(key)
     if key:lower() == "w" then
         ctrl.f = 1
     elseif key:lower() == "s" then
@@ -456,7 +608,7 @@ mouse.KeyDown:connect(function(key)
     end
 end)
 
-mouse.KeyUp:connect(function(key)
+Mouse.KeyUp:Connect(function(key)
     if key:lower() == "w" then
         ctrl.f = 0
     elseif key:lower() == "s" then
@@ -468,76 +620,79 @@ mouse.KeyUp:connect(function(key)
     end
 end)
 
-FlyButton.SetEnableFunction(function()
+FlyButton:SetEnableFunction(function()
     Fly()
 end)
 
-LocalPlayerCategory.CreateInputButton("Zoom Distance",function (inp)
-    game.Players.LocalPlayer.CameraMaxZoomDistance = inp
+-- Zoom Distance
+LocalPlayerPage:addInput("Zoom Distance",function (input)
+    LocalPlayer.CameraMaxZoomDistance = input
 end)
 
--- Universal
-local UniversalCategory = HUB_API.CreateCategory("Universal")
+-- Universal Page
+local UniversalPage = MagmaHub:addPage("Universal")
 
-UniversalCategory.CreateButton("DexExplorer", function()
+-- DexExplorer
+UniversalPage:addButton("DexExplorer", function()
     loadstring(game:GetObjects("rbxassetid://418957341")[1].Source)()
 end)
 
-UniversalCategory.CreateButton("CMD-X", function()
+-- CMD-X
+UniversalPage:addButton("CMD-X", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/CMD-X/CMD-X/master/Source", true))()
 end)
 
-UniversalCategory.CreateButton("Infinite Yield", function()
+-- Infinite Yield
+UniversalPage:addButton("Infinite Yield", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 end)
 
-UniversalCategory.CreateButton("SimpleSpy", function()
+-- SimpleSpy
+UniversalPage:addButton("SimpleSpy", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua'))()
 end)
 
-UniversalCategory.CreateButton("F3X", function()
+-- F3X
+UniversalPage:addButton("F3X", function()
     loadstring(game:GetObjects("rbxassetid://4698064966")[1].Source)()
 end)
 
-UniversalCategory.CreateButton("Btools", function()
-    local backpack = game:GetService("Players").LocalPlayer.Backpack
-
+-- Btools
+UniversalPage:addButton("Btools", function()
     local hammer        = Instance.new("HopperBin")
     hammer.Name         = "Hammer"
     hammer.BinType      = 4
-    hammer.Parent       = backpack
-    
+    hammer.Parent       = LocalPlayer.Backpack
+
     local cloneTool     = Instance.new("HopperBin")
     cloneTool.Name      = "Clone"
     cloneTool.BinType   = 3
-    cloneTool.Parent    = backpack
-    
+    cloneTool.Parent    = LocalPlayer.Backpack
+
     local grabTool      = Instance.new("HopperBin")
     grabTool.Name       = "Grab"
     grabTool.BinType    = 2
-    grabTool.Parent     = backpack
+    grabTool.Parent     = LocalPlayer.Backpack
 end)
 
-local AntiAFKButton = UniversalCategory.CreateToggelButton("Anti AFK")
+-- Anti AFK
+local AntiAFKButton = UniversalPage:addToggle("Anti AFK")
 
-LocalPlayer.Idled:connect(function()
-    if AntiAFKButton.IsEnabeld() then
+LocalPlayer.Idled:Connect(function()
+    if AntiAFKButton:IsEnabeld() then
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new())
-        print("[Magma Hub] Reflected idle Kick")
-        game.StarterGui:SetCore("SendNotification", {Title="Magma Hub"; Text="Reflected idle Kick"; Duration=2;})
+        MagmaHub:Notify("Reflected idle Kick")
     end
 end)
 
---ESP
-local ESPButton     = UniversalCategory.CreateToggelButton("ESP")
-local localPlayer   = game.Players.LocalPlayer
-local RunService    = game:GetService("RunService")
+-- ESP
+local ESPButton = UniversalPage:addToggle("ESP")
 
 local function HighlightModel(Model)
-    if ESPButton.IsEnabeld() then
+    if ESPButton:IsEnabeld() then
         for _,v in pairs(Model:children())do
-            if Model.Name ~= localPlayer.Name then
+            if Model.Name ~= LocalPlayer.Name then
                 if v:IsA'BasePart'and v.Name~='HumanoidRootPart'then
                     local bHA           = Instance.new('BoxHandleAdornment',v)
                     bHA.Adornee         = v
@@ -566,43 +721,42 @@ local function UnHighlightModel(Model)
     end
 end
 
-for _,player in pairs(game.Players:GetPlayers())do
-    player.Changed:connect(function()
+for _,player in pairs(Players:GetPlayers())do
+    player.Changed:Connect(function()
         if player ~= nil and player.Character ~= nil  then
-            RunService.Stepped:wait()
+            RunService.Stepped:Wait()
             HighlightModel(player.Character)
         end
     end)
 end
 
-game.Players.PlayerAdded:connect(function(player)
-    player.Changed:connect(function()
+Players.PlayerAdded:Connect(function(player)
+    player.Changed:Connect(function()
         if player ~= nil and player.Character ~= nil then
-            RunService.Stepped:wait()
+            RunService.Stepped:Wait()
             HighlightModel(player.Character)
         end
     end)
 end)
 
 ESPButton.SetDisableFunction(function()
-    for _,player in pairs(game.Players:GetPlayers())do
+    for _,player in pairs(Players:GetPlayers())do
         UnHighlightModel(player.Character)
     end
 end)
 
 ESPButton.SetEnableFunction(function()
-    for _,player in pairs(game.Players:GetPlayers())do
+    for _,player in pairs(Players:GetPlayers())do
         HighlightModel(player.Character)
     end
 end)
 
-UniversalCategory.CreateButton("Aimbot GUI", function()
-    PLAYER  = game.Players.LocalPlayer
-    MOUSE   = PLAYER:GetMouse()
-    CC      = game.Workspace.CurrentCamera
+-- Aimbot GUI
+UniversalPage:addButton("Aimbot GUI", function()
+    local CC = game.Workspace.CurrentCamera
 
-    ENABLED      = false
-    ESP_ENABLED  = false
+    local ENABLED      = false
+    local ESP_ENABLED  = false
 
     _G.FREE_FOR_ALL = true
 
@@ -613,22 +767,22 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
 
     wait(1)
 
-    function GetNearestPlayerToMouse()
+    local function GetNearestPlayerToMouse()
         local PLAYERS      = {}
         local PLAYER_HOLD  = {}
         local DISTANCES    = {}
         for i, v in pairs(game.Players:GetPlayers()) do
-            if v ~= PLAYER then
+            if v ~= LocalPlayer then
                 table.insert(PLAYERS, v)
             end
         end
         for i, v in pairs(PLAYERS) do
             if _G.FREE_FOR_ALL == false then
-                if v and (v.Character) ~= nil and v.TeamColor ~= PLAYER.TeamColor then
+                if v and (v.Character) ~= nil and v.TeamColor ~= LocalPlayer.TeamColor then
                     local AIM = v.Character:FindFirstChild(_G.AIM_AT)
                     if AIM ~= nil then
                         local DISTANCE                 = (AIM.Position - game.Workspace.CurrentCamera.CoordinateFrame.p).magnitude
-                        local RAY                      = Ray.new(game.Workspace.CurrentCamera.CoordinateFrame.p, (MOUSE.Hit.p - CC.CoordinateFrame.p).unit * DISTANCE)
+                        local RAY                      = Ray.new(game.Workspace.CurrentCamera.CoordinateFrame.p, (Mouse.Hit.p - CC.CoordinateFrame.p).unit * DISTANCE)
                         local HIT,POS                  = game.Workspace:FindPartOnRay(RAY, game.Workspace)
                         local DIFF                     = math.floor((POS - AIM.Position).magnitude)
                         PLAYER_HOLD[v.Name .. i]       = {}
@@ -642,7 +796,7 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
                 local AIM = v.Character:FindFirstChild(_G.AIM_AT)
                 if AIM ~= nil then
                     local DISTANCE                 = (AIM.Position - game.Workspace.CurrentCamera.CoordinateFrame.p).magnitude
-                    local RAY                      = Ray.new(game.Workspace.CurrentCamera.CoordinateFrame.p, (MOUSE.Hit.p - CC.CoordinateFrame.p).unit * DISTANCE)
+                    local RAY                      = Ray.new(game.Workspace.CurrentCamera.CoordinateFrame.p, (Mouse.Hit.p - CC.CoordinateFrame.p).unit * DISTANCE)
                     local HIT,POS                  = game.Workspace:FindPartOnRay(RAY, game.Workspace)
                     local DIFF                     = math.floor((POS - AIM.Position).magnitude)
                     PLAYER_HOLD[v.Name .. i]       = {}
@@ -653,16 +807,16 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
                 end
             end
         end
-        
+
         if unpack(DISTANCES) == nil then
             return false
         end
-        
+
         local L_DISTANCE = math.floor(math.min(unpack(DISTANCES)))
         if L_DISTANCE > 20 then
             return false
         end
-        
+
         for i, v in pairs(PLAYER_HOLD) do
             if v.diff == L_DISTANCE then
                 return v.plr
@@ -671,9 +825,9 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
         return false
     end
 
-    GUI_MAIN                           = Instance.new('ScreenGui', game.CoreGui)
-    GUI_TARGET                         = Instance.new('TextLabel', GUI_MAIN)
-    GUI_AIM_AT                         = Instance.new('TextLabel', GUI_MAIN)
+    local GUI_MAIN                           = Instance.new('ScreenGui', game.CoreGui)
+    local GUI_TARGET                         = Instance.new('TextLabel', GUI_MAIN)
+    local GUI_AIM_AT                         = Instance.new('TextLabel', GUI_MAIN)
 
     GUI_MAIN.Name                      = 'AIMBOT'
 
@@ -703,8 +857,8 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
 
     local TRACK = false
 
-    function CREATE(BASE, TEAM)
-        local ESP_MAIN                   = Instance.new('BillboardGui', PLAYER.PlayerGui)
+    local function CREATE(BASE, TEAM)
+        local ESP_MAIN                   = Instance.new('BillboardGui', LocalPlayer.PlayerGui)
         local ESP_DOT                    = Instance.new('Frame', ESP_MAIN)
         local ESP_NAME                   = Instance.new('TextLabel', ESP_MAIN)
         
@@ -737,15 +891,15 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
         ESP_NAME.TextColor               = BrickColor.new('Bright red')
     end
 
-    function CLEAR()
-        for _,v in pairs(PLAYER.PlayerGui:children()) do
+    local function CLEAR()
+        for _,v in pairs(LocalPlayer.PlayerGui:children()) do
             if v.Name == 'ESP' and v:IsA('BillboardGui') then
                 v:Destroy()
             end
         end
     end
 
-    function FIND()
+    local function FIND()
         CLEAR()
         TRACK = true
         spawn(function()
@@ -755,7 +909,7 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
                     for i,v in pairs(game.Players:GetChildren()) do
                         if v.Character and v.Character:FindFirstChild('Head') then
                             if _G.FREE_FOR_ALL == false then
-                                if v.TeamColor ~= PLAYER.TeamColor then
+                                if v.TeamColor ~= LocalPlayer.TeamColor then
                                     if v.Character:FindFirstChild('Head') then
                                         CREATE(v.Character.Head, true)
                                     end
@@ -773,15 +927,15 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
         end)
     end
 
-    MOUSE.Button2Down:connect(function()
+    Mouse.Button2Down:connect(function()
         ENABLED = true
     end)
 
-    MOUSE.Button2Up:connect(function()
+    Mouse.Button2Up:connect(function()
         ENABLED = false
     end)
 
-    MOUSE.KeyDown:connect(function(KEY)
+    Mouse.KeyDown:connect(function(KEY)
         KEY = KEY:lower():byte()
         if KEY == _G.ESP_BIND then
             if ESP_ENABLED == false then
@@ -798,7 +952,7 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
         end
     end)
 
-    MOUSE.KeyDown:connect(function(KEY)
+    Mouse.KeyDown:Connect(function(KEY)
         if KEY == _G.CHANGE_AIM then
             if _G.AIM_AT == 'Head' then
                 _G.AIM_AT = 'Torso'
@@ -810,7 +964,7 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
         end
     end)
 
-    game:GetService('RunService').RenderStepped:connect(function()
+    RunService.RenderStepped:Connect(function()
         if ENABLED then
             local TARGET = GetNearestPlayerToMouse()
             if (TARGET ~= false) then
@@ -834,32 +988,32 @@ UniversalCategory.CreateButton("Aimbot GUI", function()
 end)
 
 -- FE Invisible
-local FEInvisible = UniversalCategory.CreateToggelButton("FE Invisible")
+local FEInvisible = UniversalPage:addToggle("FE Invisible")
 
 local touched 		= false
 local box           = nil
 local loc
 
-LocalPlayer.CharacterAdded:connect(function(character)
-    if FEInvisible.IsEnabeld() then
+LocalPlayer.CharacterAdded:Connect(function(character)
+    if FEInvisible:IsEnabeld() then
         repeat wait() until character.HumanoidRootPart
         loc = character.HumanoidRootPart.Position
         character:MoveTo(box.Position + Vector3.new(0,.5,0))
     end
 end)
 
-FEInvisible.SetEnableFunction(function()
+FEInvisible:SetEnableFunction(function()
     if box == nil then
         box 		    = Instance.new('Part',workspace)
         box.Anchored 	= true
         box.CanCollide 	= true
         box.Size 		= Vector3.new(10,1,10)
         box.Position 	= Vector3.new(0,10000,0)
-        box.Touched:connect(function(part)
+        box.Touched:Connect(function(part)
             if (part.Parent.Name == LocalPlayer.Name) then
                 if touched == false then
                     touched = true
-                    if LocalPlayer.Character and FEInvisible.IsEnabeld() then
+                    if LocalPlayer.Character and FEInvisible:IsEnabeld() then
                         local no = LocalPlayer.Character.HumanoidRootPart:Clone()
                         wait(.25)
                         LocalPlayer.Character.HumanoidRootPart:Destroy()
@@ -877,51 +1031,43 @@ FEInvisible.SetEnableFunction(function()
     LocalPlayer.Character:MoveTo(box.Position + Vector3.new(0,.5,0))
 end)
 
-FEInvisible.SetDisableFunction(function()
+FEInvisible:SetDisableFunction(function()
     if LocalPlayer.Character ~= nil then
-
-        local function respawn(plr)
-            local char = plr.Character
-            if char:FindFirstChildOfClass("Humanoid") then char:FindFirstChildOfClass("Humanoid"):ChangeState(15) end
-            char:ClearAllChildren()
-            local newChar = Instance.new("Model")
-            newChar.Parent = workspace
-            plr.Character = newChar
-            wait()
-            plr.Character = char
-            newChar:Destroy()
-        end
-
-        local function refresh(plr)
-            local Human = plr.Character and plr.Character:FindFirstChildOfClass("Humanoid", true)
-            local pos = Human and Human.RootPart and Human.RootPart.CFrame
-            local pos1 = workspace.CurrentCamera.CFrame
-            respawn(plr)
-            task.spawn(function()
-                plr.CharacterAdded:Wait():WaitForChild("Humanoid").RootPart.CFrame, workspace.CurrentCamera.CFrame = pos, wait() and pos1
-            end)
-        end
-
-        refresh(LocalPlayer)
+        BLP.Refresh()
     end
+end)
+
+-- Rejoin-Game
+UniversalPage:addButton("Rejoin-Game", function()
+    TeleportService:Teleport(game.PlaceId, LocalPlayer)
 end)
 
 -- Coppy
 if setclipboard ~= nil then
-    local CoppyCategory = HUB_API.CreateCategory("Coppy")
+    local CoppyPage = MagmaHub:addPage("Coppy")
 
-    CoppyCategory.CreateButton("GameId/UniverseId", function()
+    CoppyPage:addButton("GameId / UniverseId", function()
         setclipboard(tostring(game.GameId))
     end)
 
-    CoppyCategory.CreateButton("Position", function()
-        local pos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.Position
+    CoppyPage:addButton("Position", function()
+        local pos = LocalPlayer.Character.HumanoidRootPart.CFrame.Position
         setclipboard(math.floor(pos.X)..", "..math.floor(pos.Y)..", "..math.floor(pos.Z))
     end)
 
-    CoppyCategory.CreateButton("PlaceId", function()
+    CoppyPage:addButton("PlaceId", function()
         setclipboard(tostring(game.PlaceId))
     end)
+end
+
+-- Games List
+local GamesPage = MagmaHub:addPage("Games")
+local games     = HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Commandcracker/Magma-Hub/main/games.json"))
+
+for _,v in pairs(games) do
+	GamesPage:addButton(v.Name, function()
+		TeleportService:Teleport(v.RootPlace, LocalPlayer)
+	end)
 end
 
 -- Other Games
@@ -930,21 +1076,19 @@ local successed, errData = pcall(function()
 end)
 
 if successed then
-    --local GameInfo = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
-    --print("Game: "..GameInfo.Name)
-    print("[Magma Hub] Game Supported")
-    game.StarterGui:SetCore("SendNotification", {Title="Magma Hub"; Text="Game Supported"; Duration=2;})
+    --[[
+        local GameInfo = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
+        print("Game: "..GameInfo.Name)
+    ]]
+    MagmaHub:Notify("Game Supported")
 elseif errData ~= nil then
     if errData == "HTTP 404 (Not Found)" then
-        print("[Magma Hub] Game Not Supported")
-        game.StarterGui:SetCore("SendNotification", {Title="Magma Hub"; Text="Game Not Supported"; Duration=2;})
+        MagmaHub:Notify("Game Not Supported")
     else
-        warn("[Magma Hub] Failed To load game scripts")
-        game.StarterGui:SetCore("SendNotification", {Title="Magma Hub"; Text="Failed To load game scripts"; Duration=2;})
+        MagmaHub:Notify("Failed To load game scripts", 1)
         warn(errData)
     end
 end
 
--- Animate GUI in and Enable Dragging
-util:DraggingEnabled(MainFrame)
-MainFrame:TweenPosition(UDim2.new(0.5, -250, 0.5, -196), Enum.EasingDirection.In, Enum.EasingStyle.Sine, 1)
+-- Load
+MagmaHub:load()

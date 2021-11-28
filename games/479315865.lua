@@ -1,5 +1,5 @@
 -- Knife Simulator
-local Category = HUB_API.CreateCategory("Knife Simulator")
+local Page = MagmaHub:addPage("Knife Simulator")
 
 -- Services
 local Players           = game:service("Players")
@@ -10,9 +10,9 @@ local LocalPlayer   = Players.LocalPlayer
 local Mouse         = LocalPlayer:GetMouse()
 
 -- Buttons
-local AutoFarm  = Category.CreateToggelButton("Auto Farm (you cant use your knife)")
-local AimBot    = Category.CreateToggelButton("SlientAim / AimBot")
-local KillAll   = Category.CreateToggelButton("Kill All")
+local AutoFarm  = Page:addToggle("Auto Farm (you cant use your knife)")
+local AimBot    = Page:addToggle("SlientAim / AimBot")
+local KillAll   = Page:addToggle("Kill All")
 
 -- Functions
 local function IsPlayerKillable(player)
@@ -57,9 +57,9 @@ local function FindNearestKillablePlayerToMouse()
 end
 
 -- Main
-coroutine.wrap(function()
-    while wait() do
-        if AutoFarm.IsEnabeld() then
+Threads:Add(function()
+	while wait() do
+        if AutoFarm:IsEnabeld() then
             ReplicatedStorage.forhackers:InvokeServer("hit", {})
             ReplicatedStorage.forhackers:InvokeServer("throw", CFrame.new(
                 Vector3.new(-85.16625213623, 100.0666809082, -17.599998474121),
@@ -67,16 +67,16 @@ coroutine.wrap(function()
             ))
         end
     end
-end)()
+end)
 
 workspace.CurrentCamera.trash.ChildAdded:connect(function(child)
-    if KillAll.IsEnabeld() then
+    if KillAll:IsEnabeld() then
         local player = FindNearestKillablePlayer(LocalPlayer.Character.PrimaryPart.Position)
         if player ~= nil then
             print("Killing: "..player.Name)
             child.CFrame = CFrame.new(player.Character:GetPrimaryPartCFrame().p)
         end
-    elseif AimBot.IsEnabeld() then
+    elseif AimBot:IsEnabeld() then
         local player = FindNearestKillablePlayerToMouse()
         if player ~= nil then
             child.CFrame = CFrame.new(player.Character:GetPrimaryPartCFrame().p)
