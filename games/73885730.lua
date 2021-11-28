@@ -42,3 +42,66 @@ Threads:Add(function()
         end
     end
 end)
+
+-- Kill Aura
+local KillAura = Page:addToggle("Kill Aura", function()
+    workspace.Remote.TeamEvent:FireServer("Bright orange")
+end)
+
+Threads:Add(function()
+    while wait() do
+        if KillAura:IsEnabeld() then
+            for _, player in pairs(Players:GetChildren()) do
+                if player.Name ~= LocalPlayer.Name then
+                    game:GetService("ReplicatedStorage").meleeEvent:FireServer(player)
+                end
+            end
+        end
+    end
+end)
+
+-- Auto Respawn
+local AutoRespawn = Page:addToggle("Auto Respawn")
+
+Threads:Add(function()
+    while wait() do
+        if AutoRespawn:IsEnabeld() then
+            if LocalPlayer.Character.Humanoid.Health == 0 then
+                local saved = LocalPlayer.Character.HumanoidRootPart.CFrame
+                workspace.Remote.loadchar:InvokeServer("LocalPlayer")
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = saved
+            end
+        end
+    end
+end)
+
+-- Teams
+local Teams = MagmaHub:addPage("Teams")
+
+-- Guard
+Teams:addButton("Guards", function()
+    workspace.Remote.TeamEvent:FireServer("Bright blue")
+end)
+
+-- Inmates
+Teams:addButton("Inmates", function()
+    workspace.Remote.TeamEvent:FireServer("Bright orange")
+end)
+
+-- Neutral
+Teams:addButton("Neutral", function()
+    workspace.Remote.TeamEvent:FireServer("Medium stone grey")
+end)
+
+-- Criminals
+Teams:addButton("Criminals", function()
+    local CriminalsSpawn        = game.Workspace["Criminals Spawn"].SpawnLocation
+    CriminalsSpawn.CanCollide   = false
+    CriminalsSpawn.Size         = Vector3.new(51.05, 24.12, 54.76)
+    CriminalsSpawn.CFrame       = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+    CriminalsSpawn.Transparency = 1
+    wait(0.1)
+    CriminalsSpawn.CFrame       = CFrame.new(-920.510803, 92.2271957, 2138.27002, 0, 0, -1, 0, 1, 0, 1, 0, 0)
+    CriminalsSpawn.Size         = Vector3.new(6, 0.2, 6)
+    CriminalsSpawn.Transparency = 0
+end)
