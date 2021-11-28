@@ -66,11 +66,28 @@ local AutoRespawn = Page:addToggle("Auto Respawn")
 Threads:Add(function()
     while wait() do
         if AutoRespawn:IsEnabeld() then
-            if LocalPlayer.Character.Humanoid.Health == 0 then
+            if LocalPlayer.Character and LocalPlayer.Character.Humanoid and LocalPlayer.Character.Humanoid.Health == 0 and LocalPlayer.Character.HumanoidRootPart then
                 local saved = LocalPlayer.Character.HumanoidRootPart.CFrame
                 workspace.Remote.loadchar:InvokeServer("LocalPlayer")
                 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = saved
             end
+        end
+    end
+end)
+
+-- Spawn Guns
+local SpawnGuns_pos
+local SpawnGuns = Page:addToggle("Spawn Guns", function()
+    workspace.Remote.TeamEvent:FireServer("Bright blue")
+    SpawnGuns_pos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+end)
+
+Threads:Add(function()
+    while wait(0.2) do
+        if SpawnGuns:IsEnabeld() and LocalPlayer.Character and LocalPlayer.Character.Humanoid and LocalPlayer.Character.HumanoidRootPart then
+            LocalPlayer.Character.Humanoid.Health = 0
+            workspace.Remote.loadchar:InvokeServer("LocalPlayer")
+            LocalPlayer.Character.HumanoidRootPart.CFrame = SpawnGuns_pos
         end
     end
 end)
