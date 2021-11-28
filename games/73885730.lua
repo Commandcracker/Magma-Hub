@@ -92,6 +92,32 @@ Threads:Add(function()
     end
 end)
 
+-- Kill all
+local Killall_pos
+local Killall = Page:addToggle(
+    "Kill all",
+    function()
+        Killall_pos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+    end,
+    function()
+        LocalPlayer.Character.HumanoidRootPart.CFrame = Killall_pos
+    end
+)
+
+Threads:Add(function()
+    while wait() do
+        if Killall:IsEnabeld() then
+            for _,player in pairs(Players:GetPlayers()) do
+                if LocalPlayer.Character and LocalPlayer.Character.HumanoidRootPart and player.Character and player.Character:FindFirstChild("HumanoidRootPart") ~= nil and player.Character.Humanoid and player.Character.Humanoid.Health > 0 and player.Character:FindFirstChildOfClass("ForceField") == nil and player ~= LocalPlayer then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame + Vector3.new(-2, 0, 0)
+                    wait(0.5)
+                    if Killall:IsEnabeld() == false then break end
+                end
+            end
+        end
+    end
+end)
+
 -- Teams
 local Teams = MagmaHub:addPage("Teams")
 
