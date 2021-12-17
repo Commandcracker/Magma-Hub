@@ -140,6 +140,85 @@ if getrenv ~= nil then
         end
     end)
 
+    -- Sellables
+    local Sellables = {}
+
+    for _,Sellable in pairs(ReplicatedStorage.Sellables:getChildren()) do
+        Sellables[Sellable.Name] = Sellable.Name
+    
+        for _,Variant in pairs(Sellable.Variants:getChildren()) do
+            Sellables[Variant.Name] = Sellable.Name
+        end
+       
+    end
+
+    -- Auto Buy
+    local AutoBuy = Page:addToggle("Auto Buy (Enable Auto Delivery and Auto Restock)")
+
+    Threads:Add(function()
+        while wait() do
+            if AutoBuy:IsEnabeld() then
+                local Plot = GetPlot()
+                if Plot ~= nil then
+                    for _,Descendant in pairs(Plot.Objects:GetDescendants()) do
+                        if Descendant.Name == "Shelves" and Descendant:FindFirstChild("Base") then
+                            local Amount = string.split(Descendant.Base.StockLabel.Panel.Frame.Amount.Text, "/")
+                            if #Amount == 2 then
+                                local buyAmount = tonumber(Amount[2])-tonumber(Amount[1])
+
+                                if buyAmount ~= nil then
+                                    print("Buy "..tostring(buyAmount)..' x "'..Sellables[Descendant.Sellable.Value]..'"')
+                                    ReplicatedStorage.Remotes.BuyStorage:InvokeServer(Sellables[Descendant.Sellable.Value], buyAmount, false)
+                                end
+
+                            end
+                        end
+                    end
+                    wait(30)
+                end
+            end
+        end
+    end)
+
+    -- Auto Delivery
+    local AutoDelivery = Page:addToggle("Auto Delivery")
+
+    Threads:Add(function()
+        while wait() do
+            if AutoDelivery:IsEnabeld() then
+                local Car   = GetCar()
+                local Plot  = GetPlot()
+
+                if Car ~= nil and Plot ~= nil then
+                    -- Tp to Loading Dock
+                    TeleportCar(GetLoadingDock().ParkingArea.Floor.CFrame * CFrame.Angles(0,math.rad(-90),0) + Vector3.new(0,5,0))
+                    wait(1)
+
+                    -- LoadVehicle
+                    ReplicatedStorage.Remotes.LoadVehicle:InvokeServer()
+                    wait(1)
+
+                    -- Tp to Unloading Dock
+                    for _,Descendant in pairs(Plot.Walls:GetDescendants()) do
+                        if string.find(Descendant.Name,"Door") then
+                            if Descendant:FindFirstChild("Base") then
+                                Descendant.Base.CanCollide = false
+                                TeleportCar(Descendant.Base.CFrame * CFrame.Angles(0,0,0) + Vector3.new(0,0,0))
+                                break
+                            end
+                        end
+                    end
+                    wait(1)
+
+                    -- UnloadVehicle
+                    ReplicatedStorage.Remotes.UnloadVehicle:InvokeServer()
+                    wait(1)
+                end
+            end
+        end
+    end)
+
+    -- Car Teleports
     local CarTeleports = MagmaHub:addPage("Car Teleports")
 
     -- Plot
@@ -160,14 +239,6 @@ end
 -- Teleports
 local Teleports = MagmaHub:addPage("Teleports")
 
--- Car
-Teleports:addButton("Car", function ()
-    local Car = GetCar()
-    if Car ~= nil then
-        LocalPlayer.Character.PrimaryPart.CFrame = Car:GetPrimaryPartCFrame() + Vector3.new(0,20,0)
-    end
-end)
-
 if getrenv ~= nil then
     -- Plot
     Teleports:addButton("Plot", function ()
@@ -180,18 +251,18 @@ end
 
 -- Loading Dock
 Teleports:addButton("Loading Dock", function ()
-    local Plot = GetPlot()
-    if Plot ~= nil then
-        LocalPlayer.Character.PrimaryPart.CFrame = workspace.Map.Landmarks["Loading Dock"].MicrokSpawn.CFrame + Vector3.new(-5,0,0)
+    LocalPlayer.Character.PrimaryPart.CFrame = workspace.Map.Landmarks["Loading Dock"].MicrokSpawn.CFrame + Vector3.new(-5,0,0)
+end)
+
+-- Car
+Teleports:addButton("Car", function ()
+    local Car = GetCar()
+    if Car ~= nil then
+        LocalPlayer.Character.PrimaryPart.CFrame = Car:GetPrimaryPartCFrame() + Vector3.new(0,20,0)
     end
 end)
 
-if getrenv ~= nil then
-    -- Vehicle Store
-    Teleports:addButton("Vehicle Store", function ()
-        local Plot = GetPlot()
-        if Plot ~= nil then
-            LocalPlayer.Character.PrimaryPart.CFrame = workspace.Map.Landmarks["Vehicle Store"].MainFloor.CFrame
-        end
-    end)
-end
+-- Vehicle Store
+Teleports:addButton("Vehicle Store", function ()
+    LocalPlayer.Character.PrimaryPart.CFrame = workspace.Map.Landmarks["Vehicle Store"].MainFloor.CFrame
+end)
