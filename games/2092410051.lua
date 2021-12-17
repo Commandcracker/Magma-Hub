@@ -220,7 +220,7 @@ if getrenv ~= nil then
                                 if Descendant:FindFirstChild("Base") and Descendant:FindFirstChild("Handle") then
                                     Descendant.Base.CanCollide      = false
                                     Descendant.Handle.CanCollide    = false
-                                    TeleportCar(Descendant.Parent.Base.CFrame * CFrame.Angles(0,0,0) + Vector3.new(1,2,1))
+                                    TeleportCar(Descendant.Parent.Base.CFrame * CFrame.Angles(0,math.rad(180),0) + Vector3.new(1,2,1))
                                     break
                                 end
                             end
