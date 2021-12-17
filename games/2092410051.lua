@@ -166,7 +166,7 @@ if getrenv ~= nil then
                             if #Amount == 2 then
                                 local buyAmount = tonumber(Amount[2])-tonumber(Amount[1])
 
-                                if buyAmount ~= nil then
+                                if buyAmount ~= 0 then
                                     print("Buy "..tostring(buyAmount)..' x "'..Sellables[Descendant.Sellable.Value]..'"')
                                     ReplicatedStorage.Remotes.BuyStorage:InvokeServer(Sellables[Descendant.Sellable.Value], buyAmount, false)
                                 end
@@ -181,7 +181,7 @@ if getrenv ~= nil then
     end)
 
     -- Auto Delivery
-    local AutoDelivery = Page:addToggle("Auto Delivery")
+    local AutoDelivery = Page:addToggle("Auto Delivery (Spawn you'r Car)")
 
     Threads:Add(function()
         while wait() do
@@ -190,29 +190,64 @@ if getrenv ~= nil then
                 local Plot  = GetPlot()
 
                 if Car ~= nil and Plot ~= nil then
-                    -- Tp to Loading Dock
-                    TeleportCar(GetLoadingDock().ParkingArea.Floor.CFrame * CFrame.Angles(0,math.rad(-90),0) + Vector3.new(0,5,0))
-                    wait(1)
+                    
+                    if getrenv()._G.Data.DockCurrentStorage > 0 and getrenv()._G.Data.VehicleMaxStorage ~= getrenv()._G.Data.VehicleCurrentStorage then
+                        -- Tp to Loading Dock
+                        TeleportCar(GetLoadingDock().ParkingArea.Floor.CFrame * CFrame.Angles(0,math.rad(-90),0) + Vector3.new(0,5,0))
+                        wait(1)
 
-                    -- LoadVehicle
-                    ReplicatedStorage.Remotes.LoadVehicle:InvokeServer()
-                    wait(1)
+                        -- LoadVehicle
+                        local Storage, MaxStorage, CurrentStorage, VehicleStorage, VehicleMaxStorage, VehicleCurrentStorage, DockStorage, DockCurrentStorage = ReplicatedStorage.Remotes.LoadVehicle:InvokeServer()
 
-                    -- Tp to Unloading Dock
-                    for _,Descendant in pairs(Plot.Walls:GetDescendants()) do
-                        if string.find(Descendant.Name,"Door") then
-                            if Descendant:FindFirstChild("Base") then
-                                Descendant.Base.CanCollide = false
-                                TeleportCar(Descendant.Base.CFrame * CFrame.Angles(0,0,0) + Vector3.new(0,0,0))
-                                break
+                        if Storage ~= nil then
+                            getrenv()._G.Data.Storage               = Storage
+                            getrenv()._G.Data.MaxStorage            = MaxStorage
+                            getrenv()._G.Data.CurrentStorage        = CurrentStorage
+                            getrenv()._G.Data.VehicleStorage        = VehicleStorage
+                            getrenv()._G.Data.VehicleMaxStorage     = VehicleMaxStorage
+                            getrenv()._G.Data.VehicleCurrentStorage = VehicleCurrentStorage
+                            getrenv()._G.Data.DockStorage           = DockStorage
+                            getrenv()._G.Data.DockCurrentStorage    = DockCurrentStorage
+                        end
+
+                        wait(1)
+                    end
+
+                    if getrenv()._G.Data.VehicleCurrentStorage > 0 then
+                        -- Tp to Unloading Dock
+                        for _,Descendant in pairs(Plot.Walls:GetDescendants()) do
+                            if string.find(Descendant.Name,"Door") then
+                                if Descendant:FindFirstChild("Base") and Descendant:FindFirstChild("Handle") then
+                                    Descendant.Base.CanCollide      = false
+                                    Descendant.Handle.CanCollide    = false
+                                    TeleportCar(Descendant.Parent.Base.CFrame * CFrame.Angles(0,0,0) + Vector3.new(1,2,1))
+                                    break
+                                end
                             end
                         end
-                    end
-                    wait(1)
+                        wait(1)
 
-                    -- UnloadVehicle
-                    ReplicatedStorage.Remotes.UnloadVehicle:InvokeServer()
-                    wait(1)
+                        -- UnloadVehicle
+                        local Storage, MaxStorage, CurrentStorage, VehicleStorage, VehicleMaxStorage, VehicleCurrentStorage, DockStorage, DockCurrentStorage = ReplicatedStorage.Remotes.UnloadVehicle:InvokeServer()
+                        
+                        if Storage ~= nil then
+                            getrenv()._G.Data.Storage               = Storage
+                            getrenv()._G.Data.MaxStorage            = MaxStorage
+                            getrenv()._G.Data.CurrentStorage        = CurrentStorage
+                            getrenv()._G.Data.VehicleStorage        = VehicleStorage
+                            getrenv()._G.Data.VehicleMaxStorage     = VehicleMaxStorage
+                            getrenv()._G.Data.VehicleCurrentStorage = VehicleCurrentStorage
+                            getrenv()._G.Data.DockStorage           = DockStorage
+                            getrenv()._G.Data.DockCurrentStorage    = DockCurrentStorage
+                        end
+
+                        wait(1)
+
+                        if getrenv()._G.Data.DockCurrentStorage <= 0 and getrenv()._G.Data.VehicleCurrentStorage <= 0 then
+                            -- Waiting Spot (Plot)
+                            TeleportCar(Plot.RoadModule.Center.CFrame * CFrame.Angles(0,math.rad(180),0) + Vector3.new(0,10,0))
+                        end
+                    end
                 end
             end
         end
