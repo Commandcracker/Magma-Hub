@@ -138,6 +138,54 @@ function Btable.Contains(Table: table, Item)
 	return false
 end
 
+function Btable.Print(Table: table)
+    local function getPointer(...)
+        return string.split(tostring(...), " ")[2]
+    end
+
+    local function TableToString(Table: table, space: number)
+        local out   = "{\n"
+
+        if space == nil then
+            space = 1
+        end
+
+        for key,value in pairs(Table) do
+            local keyString
+            keyString = "['"..tostring(key).."']"
+    
+            local valueString
+            if type(value) == "function" then
+                valueString = "'".."function_"..getPointer(value).."'"
+            elseif type(value) == "string" then
+                valueString = "'"..tostring(value).."'"
+            elseif type(value) == "table" then
+                valueString = TableToString(value, space+1)
+            else
+                valueString = tostring(value)
+            end
+
+            for _=1,space*4 do
+                out=out.." "
+            end
+
+            out=out..keyString.." = "..valueString..',\n'
+        end
+        for _=1,(space-1)*4 do
+            out=out.." "
+        end
+        return out.."}"
+    end
+
+    local out = "local table_"..getPointer(Table).." = "..TableToString(Table).."\n"
+    if rconsoleclear ~= nil then rconsoleclear() end
+    if rconsoleprint ~= nil then
+        rconsoleprint(out)
+    else
+        print(out)
+    end
+end
+
 -- UI util
 local UIutil = {}
 
