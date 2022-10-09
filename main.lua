@@ -14,6 +14,7 @@ local HttpService       = game:GetService("HttpService")
 local TeleportService   = game:GetService("TeleportService")
 local Camera            = game:GetService("Workspace").CurrentCamera
 local TestService       = game:GetService("TestService")
+local TweenService 		= game:GetService("TweenService")
 
 -- Variables
 local LocalPlayer = Players.LocalPlayer
@@ -404,12 +405,32 @@ function Page:addButton(title: string, callback)
     Button.Button.Position          = UDim2.new(0.89, 0, 0.25, -2)
     Button.Button.TextSize          = 12
     Button.Button.Size              = UDim2.new(0, 35, 1, -10)
-    Button.Button.BorderSizePixel   = 0
+    Button.Button.BorderColor3		= Color3.fromRGB(100, 100, 100)
     Button.Button.BackgroundColor3  = Color3.fromRGB(20, 20, 20)
 
     function Button:connect(callback)
         Button.Button.MouseButton1Click:Connect(callback)
     end
+
+    local hovering  = false
+    local tweenTime = 0.125
+	local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+
+    Button.Button.MouseEnter:Connect(function()
+        hovering = true
+
+        local borderFadeIn = TweenService:Create(Button.Button, tweenInfo, {BorderColor3 = Color3.fromRGB(255, 255, 255)})
+        borderFadeIn:Play()
+
+		repeat wait() until not hovering
+
+        local borderFadeOut = TweenService:Create(Button.Button, tweenInfo, {BorderColor3 = Color3.fromRGB(100, 100, 100)})
+		borderFadeOut:Play()
+    end)
+
+	Button.Button.MouseLeave:Connect(function()
+        hovering = false
+    end)
 
     if callback then
         Button.Button.MouseButton1Click:Connect(callback)
@@ -468,8 +489,28 @@ function Page:addInput(title: string, Function)
     Button.TextBox.Position            = UDim2.new(1, -125, 0.25, -2)
     Button.TextBox.Size                = UDim2.new(0, 75, 1, -10)
     Button.TextBox.TextSize            = 12
-    Button.TextBox.BorderSizePixel     = 0
+    Button.TextBox.BorderColor3		   = Color3.fromRGB(100, 100, 100)
     Button.TextBox.BackgroundColor3    = Color3.fromRGB(20, 20, 20)
+
+    local hovering  = false
+    local tweenTime = 0.125
+	local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+
+    Button.TextBox.MouseEnter:Connect(function()
+        hovering = true
+
+        local borderFadeIn = TweenService:Create(Button.TextBox, tweenInfo, {BorderColor3 = Color3.fromRGB(255, 255, 255)})
+        borderFadeIn:Play()
+
+		repeat wait() until not hovering and not Button.TextBox:IsFocused()
+
+        local borderFadeOut = TweenService:Create(Button.TextBox, tweenInfo, {BorderColor3 = Color3.fromRGB(100, 100, 100)})
+		borderFadeOut:Play()
+    end)
+
+	Button.TextBox.MouseLeave:Connect(function()
+        hovering = false
+    end)
 
     Button.Button.MouseButton1Click:Connect(function()
         if Function ~= nil then
@@ -682,6 +723,12 @@ end)
 -- Universal Page
 local UniversalPage = MagmaHub:addPage("Universal")
 
+-- Secure Dex
+UniversalPage:addButton("Secure Dark Dex V3", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/BypassedDarkDexV3.lua", true))()
+end)
+
+-- merge Magma Dex with Secure dex
 -- Magma Dex
 UniversalPage:addButton("Magma Dex", function()
     local Dex = rawget(game:GetObjects("rbxassetid://8126316565"), 0X1)
@@ -723,12 +770,44 @@ end)
 
 -- CMD-X
 UniversalPage:addButton("CMD-X", function()
+    --[[----------------------------------------------------------------
+    |                ▄▀▄▄▄▄   ▄▀▀▄ ▄▀▄  ▄▀▀█▄▄   ▄▀▀▄  ▄▀▄             |
+    |               █ █    ▌ █  █ ▀  █ █ ▄▀   █ █    █   █             |
+    |              ▐ █      ▐  █    █ ▐ █    █ ▐     ▀▄▀               |
+    |                █        █    █    █    █      ▄▀ █               |
+    |               ▄▀▄▄▄▄▀ ▄▀   ▄▀    ▄▀▄▄▄▄▀     █  ▄▀               |
+    |              █     ▐  █    █    █     ▐    ▄▀  ▄▀                |
+    |              ▐        ▐    ▐    ▐         █    ▐                 |
+    |               ▐        ▐    ▐    ▐         █    ▐                |
+    |------------------------------------------------------------------|
+    |    Credits:    | Binds & Info:                                   |
+    |    pigeon#1818 | U                         Open and close output |
+    |        hz#4777 | RShift                          Fill suggestion |
+    |     Curvn#2646 | ;                               Focus on CMDBar |
+    | -------------- | Q                                Open and close |
+    |                | LShift+Bksp                        Clear CMDbar |
+    |                |                                                 |
+    |                | .cmds                             List commands |
+    ----------------------------------------------------------------]]--
     loadstring(game:HttpGet("https://raw.githubusercontent.com/CMD-X/CMD-X/master/Source", true))()
 end)
 
 -- Infinite Yield
 UniversalPage:addButton("Infinite Yield", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+end)
+
+-- Hydroxide
+UniversalPage:addButton("Hydroxide", function()
+    local owner = "Upbolt"
+    local branch = "revision"
+    
+    local function webImport(file)
+        return loadstring(game:HttpGetAsync(("https://raw.githubusercontent.com/%s/Hydroxide/%s/%s.lua"):format(owner, branch, file)), file .. '.lua')()
+    end
+    
+    webImport("init")
+    webImport("ui/main")
 end)
 
 -- SimpleSpy
@@ -2012,14 +2091,16 @@ end)
 end
 
 -- Games List
-local GamesPage = MagmaHub:addPage("Games")
-local games     = HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Commandcracker/Magma-Hub/main/games.json"))
+pcall(function()
+    local games     = HttpService:JSONDecode(game:HttpGet("https://raw.githubusercontent.com/Commandcracker/Magma-Hub/main/games.json"))
+    local GamesPage = MagmaHub:addPage("Games")
 
-for _,v in pairs(games) do
-	GamesPage:addButton(v.Name, function()
-		TeleportService:Teleport(v.RootPlace, LocalPlayer)
-	end)
-end
+    for _,v in pairs(games) do
+        GamesPage:addButton(v.Name, function()
+            TeleportService:Teleport(v.RootPlace, LocalPlayer)
+        end)
+    end
+end)
 
 -- Other Games
 local successed, errData = pcall(function()
