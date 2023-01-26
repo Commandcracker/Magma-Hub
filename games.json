@@ -8,31 +8,37 @@
    {
       "UniverseId": 1237829262,
       "Name": "Magnet Simulator \u26a1",
-      "Icon": "https://tr.rbxcdn.com/b137d3caf8241c57bf40b77d028e28f1/128/128/Image/Png",
+      "Icon": "https://tr.rbxcdn.com/dfabad4ab687cb66a3dfd942936212d0/128/128/Image/Png",
       "RootPlace": 3486025575
    },
    {
       "UniverseId": 187796008,
       "Name": "Those Who Remain",
-      "Icon": "https://tr.rbxcdn.com/8f12d4f8796578409a4b77a1b0823fa0/128/128/Image/Png",
+      "Icon": "https://tr.rbxcdn.com/62e61840c2166becd12e43440a10324b/128/128/Image/Png",
       "RootPlace": 488667523
    },
    {
       "UniverseId": 2092410051,
-      "Name": "\ud83d\uded2\ud83e\uddd2 Retail Tycoon 2",
-      "Icon": "https://tr.rbxcdn.com/d497d0509c7ade3df70fcb20636e9711/128/128/Image/Png",
+      "Name": "\ud83d\uded2Retail Tycoon 2",
+      "Icon": "https://tr.rbxcdn.com/f185bc6d6d1e0504ab2b639bfcd7e4ff/128/128/Image/Png",
       "RootPlace": 5865858426
    },
    {
       "UniverseId": 212154879,
       "Name": "Swordburst 2",
-      "Icon": "https://tr.rbxcdn.com/62e12d7781a197d0059f8dbdeed54444/128/128/Image/Png",
+      "Icon": "https://tr.rbxcdn.com/10890d929117c86aae6d82e0469c3cb4/128/128/Image/Png",
       "RootPlace": 659222129
    },
    {
+      "UniverseId": 2316994223,
+      "Name": "\ud83c\udf08 Pet Simulator X! \ud83d\udc3e",
+      "Icon": "https://tr.rbxcdn.com/b1af44112f340476b194a4f4f5923dbd/128/128/Image/Png",
+      "RootPlace": 6284583030
+   },
+   {
       "UniverseId": 2324662457,
-      "Name": "[ 5x \u23f3\ud83c\udf40\ud83d\udd0e  ] Anime Fighters Simulator",
-      "Icon": "https://tr.rbxcdn.com/d456a23c8a50c7f3f7a35d1be22acacd/128/128/Image/Png",
+      "Name": "Anime Fighters Simulator",
+      "Icon": "https://tr.rbxcdn.com/7892a54485c34a20f454807f0d20b893/128/128/Image/Png",
       "RootPlace": 6299805723
    },
    {
@@ -43,9 +49,15 @@
    },
    {
       "UniverseId": 3321455016,
-      "Name": "[\ud83c\udf35Wild West!] \u26a1 Tapping Legends X",
-      "Icon": "https://tr.rbxcdn.com/2e3bb87ce9dd9fe770846f2ea8341c26/128/128/Image/Png",
+      "Name": "Tapping Legends X",
+      "Icon": "https://tr.rbxcdn.com/74eb8317085e7f7264cc152d3b60a2bf/128/128/Image/Png",
       "RootPlace": 8750997647
+   },
+   {
+      "UniverseId": 4027164587,
+      "Name": "Every Second You Get +1 Health",
+      "Icon": "https://tr.rbxcdn.com/1454d82b70967fd0d6b5cf399f372df1/128/128/Image/Png",
+      "RootPlace": 11302865934
    },
    {
       "UniverseId": 479315865,
@@ -56,13 +68,13 @@
    {
       "UniverseId": 520416633,
       "Name": "Cash Grab Simulator",
-      "Icon": "https://tr.rbxcdn.com/97287fbebb834d0551f9479dda2789fe/128/128/Image/Png",
+      "Icon": "https://tr.rbxcdn.com/3d7d5872863b9a8ca4f45f4affb9c2c0/128/128/Image/Png",
       "RootPlace": 1283960312
    },
    {
       "UniverseId": 571399053,
       "Name": "Operation Scorpion",
-      "Icon": "https://tr.rbxcdn.com/d38610f43b903cb31b49b3a6b5d9ae95/128/128/Image/Png",
+      "Icon": "https://tr.rbxcdn.com/f0bbecacd1c7566452a6ee80caecc704/128/128/Image/Png",
       "RootPlace": 1436977294
    },
    {
@@ -74,19 +86,19 @@
    {
       "UniverseId": 767752328,
       "Name": "\ud83d\udca5SPTS Classic",
-      "Icon": "https://tr.rbxcdn.com/2f26438c614a9d8f44b83b6d23baf043/128/128/Image/Png",
+      "Icon": "https://tr.rbxcdn.com/ea09347de5914f83d7eb0a6e686fa779/128/128/Image/Png",
       "RootPlace": 2202352383
    },
    {
       "UniverseId": 81762198,
       "Name": "Vehicle Simulator",
-      "Icon": "https://tr.rbxcdn.com/1a2ad0877d64e186ebbdae32b224abfc/128/128/Image/Png",
+      "Icon": "https://tr.rbxcdn.com/96601dff4685a347cd334906473c92ce/128/128/Image/Png",
       "RootPlace": 171391948
    },
    {
       "UniverseId": 838314897,
       "Name": "Shouting Simulator 2",
-      "Icon": "https://tr.rbxcdn.com/bd9b163490c3a41781a6447adee6ced9/128/128/Image/Png",
+      "Icon": "https://tr.rbxcdn.com/07b2dccc925d1649f637de1ca69ba37b/128/128/Image/Png",
       "RootPlace": 2390294506
    },
    {
@@ -98,7 +110,7 @@
    {
       "UniverseId": 962480973,
       "Name": "\u2728Dashing Simulator\ud83d\ude80 [SALE!]",
-      "Icon": "https://tr.rbxcdn.com/cd1cfd81a4e964246a75f921eed9f815/128/128/Image/Png",
+      "Icon": "https://tr.rbxcdn.com/755330234fb58948e9fccd7c09bf7242/128/128/Image/Png",
       "RootPlace": 2673595672
    }
 ]
