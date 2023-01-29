@@ -9,7 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
 -- Auto Sell
-local Sell = game.Workspace.Rings.Sellx2
+local Sell = workspace:WaitForChild("Rings"):WaitForChild("Sellx2")
 local pos = Sell.CFrame
 local AutoSell = Page:addToggle("Auto Sell", nil, function()
     if firetouchinterest == nil then
@@ -19,16 +19,16 @@ local AutoSell = Page:addToggle("Auto Sell", nil, function()
 end)
 
 Threads:Add(function()
-    while wait() do
+    while task.wait() do
         if AutoSell:IsEnabeld() then
             if firetouchinterest == nil then
                 Sell.CanCollide = false
                 Sell.CFrame = LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, math.random(-1, 1), 0)
             else
                 if LocalPlayer.Character ~= nil and LocalPlayer.Character.HumanoidRootPart ~= nil then
-                    firetouchinterest(LocalPlayer.Character.HumanoidRootPart, game.Workspace.Rings.Sellx2, 0)
-                    wait()
-                    firetouchinterest(LocalPlayer.Character.HumanoidRootPart, game.Workspace.Rings.Sellx2, 1)
+                    firetouchinterest(LocalPlayer.Character.HumanoidRootPart, Sell, 0)
+                    task.wait()
+                    firetouchinterest(LocalPlayer.Character.HumanoidRootPart, Sell, 1)
                 end
             end
         end
@@ -58,7 +58,7 @@ end)
 local AutoCollectCoins = Page:addToggle("Auto Collect Coins")
 
 Threads:Add(function()
-    while wait() do
+    while task.wait() do
         if AutoCollectCoins:IsEnabeld() then
             ReplicatedStorage.Events.MagnetEvents.requestGrab:FireServer("6080000000",
                 ReplicatedStorage.Tools["Lucky Long Tri-Magnet"])
@@ -73,7 +73,7 @@ local Rebirths = {200000, 125000, 100000, 75000, 50000, 25000, 10000, 5000, 2500
 
 local AutoRebirthCanAfford = AutoRebirth:addToggle("Auto Rebirth (Can Afford)")
 Threads:Add(function()
-    while wait() do
+    while task.wait() do
         if AutoRebirthCanAfford:IsEnabeld() then
             for _, v in pairs(Rebirths) do
                 ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(v)
@@ -86,7 +86,7 @@ for _, v in pairs(Btable.Reverse(Rebirths)) do
     local AutoRebirthButton = AutoRebirth:addToggle("Auto Rebirth " .. tostring(v))
     local Rebirth = v
     Threads:Add(function()
-        while wait() do
+        while task.wait() do
             if AutoRebirthButton:IsEnabeld() then
                 ReplicatedStorage.RebirthEvents.requestRebirth:InvokeServer(Rebirth)
             end
