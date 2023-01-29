@@ -1,0 +1,11 @@
+{
+    "robloxLsp.diagnostics.globals": [
+        "Threads",
+        "MagmaHub",
+        "firetouchinterest",
+        "hookmetamethod",
+        "getnamecallmethod",
+        "Btable",
+        "getrenv"
+    ]
+}

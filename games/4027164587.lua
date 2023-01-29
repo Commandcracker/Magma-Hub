@@ -13,7 +13,7 @@ Threads:Add(function()
         if AutoFarm:IsEnabeld() then
             firetouchinterest(LocalPlayer.Character.HumanoidRootPart, workspace.Wins.Fall, 0)
             wait()
-            firetouchinterest(LocalPlayer.Character.HumanoidRootPart, workspace.Wins.Fall, 1)            
+            firetouchinterest(LocalPlayer.Character.HumanoidRootPart, workspace.Wins.Fall, 1)
         end
     end
 end)
@@ -31,7 +31,7 @@ end)
 
 -- Win all
 Page:addButton("Win all", function()
-    for _,v in pairs(workspace.Wins:children()) do
+    for _, v in pairs(workspace.Wins:children()) do
         firetouchinterest(LocalPlayer.Character.HumanoidRootPart, v, 0)
         wait()
         firetouchinterest(LocalPlayer.Character.HumanoidRootPart, v, 1)

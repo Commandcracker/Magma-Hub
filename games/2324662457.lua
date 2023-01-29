@@ -19,9 +19,9 @@ local AutoCollectCoins = Page:addToggle("Auto Collect Coins")
 Threads:Add(function()
     while wait() do
         if AutoCollectCoins:IsEnabeld() then
-            for _,v in pairs(workspace.Effects:GetDescendants()) do
+            for _, v in pairs(workspace.Effects:GetDescendants()) do
                 if v.Name == "Base" then
-                    v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0,0,0)
+                    v.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 0, 0)
                 end
             end
         end

@@ -1,53 +1,58 @@
 -- Cash Grab Simulator
 local Page = MagmaHub:addPage("Cash Grab Simulator")
 
--- Buttons
-local AutoFarmButton = Page:addToggle("Auto Farm")
-
 -- Services
-local Services  = setmetatable({},{__index=function(_,i) return game:service(i) end});
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Variables
-local plr       = Services.Players.LocalPlayer;
-local rem       = Services.ReplicatedStorage.remotes.bindCustomer;
-local dep       = workspace.zones.depositZone;
+local LocalPlayer = Players.LocalPlayer
+local bindCustomer = ReplicatedStorage.remotes.bindCustomer
+local depositZone = workspace.zones.depositZone
 
 -- Functions
-local function hasMax(getMax)
-    local a,b = plr.PlayerGui.screenGui.customerList.header.textLabel.Text:match('(%d+)/(%d+)');
-    return getMax and b or (a == b);
+local function hasMaxCustomers()
+    local a, b = LocalPlayer.PlayerGui.screenGui.customerList.header.textLabel.Text:match('(%d+)/(%d+)')
+    return a == b
 end
 
-local function backpackIsFull(leasure)
-    if not plr.Character then return false end
-    local display = plr.Character:FindFirstChild('backpackDisplay', true)
-    if not display then return false end
-    a,b = display.holder.textLabel.Text:match('(%d+)/(%d+)');
-    return (a == b) or (tonumber(a) > tonumber(b)-(leasure or 0));
+local function isBackpackIsFull()
+    return LocalPlayer.PlayerGui.screenGui.backpackIndicator.Visible
 end
 
--- Threads
+-- Auto Farm
+local AutoFarmButton = Page:addToggle("Auto Farm")
+
 Threads:Add(function()
-    while wait(1/15) do
+    while task.wait(1 / 15) do
         if AutoFarmButton:IsEnabeld() then
-            if backpackIsFull(tonumber(hasMax(true))/10) then
-                local cf = plr.Character.HumanoidRootPart.CFrame;
-                plr.Character.HumanoidRootPart.CFrame = dep.CFrame;
-                wait(1/20)
-                plr.Character.HumanoidRootPart.CFrame = cf;
+            if isBackpackIsFull() then
+                if firetouchinterest then
+                    firetouchinterest(LocalPlayer.Character.HumanoidRootPart, depositZone, 0)
+                    task.wait()
+                    firetouchinterest(LocalPlayer.Character.HumanoidRootPart, depositZone, 1)
+                else
+                    local oldCFrame = LocalPlayer.Character.HumanoidRootPart.CFrame
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = depositZone.CFrame
+                    task.wait(1 / 20)
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = oldCFrame
+                end
             end
         end
     end
 end)
 
 Threads:Add(function()
-    while wait(.5) do
+    while task.wait(.5) do
         if AutoFarmButton:IsEnabeld() then
-            if not hasMax() then
-                for _,v in ipairs(workspace.customers:children()) do
-                    if v:FindFirstChild('properties') and v.properties:FindFirstChild('owner') and not v.properties.owner.Value and not hasMax() and (plr.Character.HumanoidRootPart.CFrame.p-v.HumanoidRootPart.CFrame.p).magnitude < 100 then
-                        rem:FireServer(v);
-                        wait(.5);
+            if not hasMaxCustomers() then
+                for _, Customer in ipairs(workspace.customers:children()) do
+                    if Customer:FindFirstChild('properties') and Customer.properties:FindFirstChild('owner') and
+                        not Customer.properties.owner.Value and not hasMaxCustomers() and
+                        (LocalPlayer.Character.HumanoidRootPart.CFrame.Position -
+                            Customer.HumanoidRootPart.CFrame.Position).magnitude < 100 then
+                        bindCustomer:FireServer(Customer)
+                        task.wait(.5)
                     end
                 end
             end

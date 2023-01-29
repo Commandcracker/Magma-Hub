@@ -2,7 +2,7 @@
 local Page = MagmaHub:addPage("Dashing Simulator")
 
 -- Services
-local Players           = game:GetService("Players")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Variables
@@ -38,7 +38,7 @@ Threads:Add(function()
 
     while wait() do
         if AutoCollectOrbsButton:IsEnabeld() then
-            for _,Orb in pairs(CollectableOrbs) do
+            for _, Orb in pairs(CollectableOrbs) do
                 if Orb.Name == "35" and Orb.Small.Transparency == 0 then
                     if firetouchinterest == nil then
                         LocalPlayer.Character.HumanoidRootPart.CFrame = Orb.Small.CFrame
@@ -48,7 +48,9 @@ Threads:Add(function()
                         firetouchinterest(LocalPlayer.Character.HumanoidRootPart, Orb.Small, 1)
                     end
                     wait(2)
-                    if AutoCollectOrbsButton:IsEnabeld() == false then break end
+                    if AutoCollectOrbsButton:IsEnabeld() == false then
+                        break
+                    end
                 end
             end
         end
@@ -63,7 +65,7 @@ Threads:Add(function()
 
     while wait() do
         if AutoCollectFlowersButton:IsEnabeld() then
-            for _,Flower in pairs(Flowers) do
+            for _, Flower in pairs(Flowers) do
                 if Flower.Name == "30" and Flower.Main.Transparency == 0 then
                     if firetouchinterest == nil then
                         LocalPlayer.Character.HumanoidRootPart.CFrame = Flower.Main.CFrame
@@ -73,7 +75,9 @@ Threads:Add(function()
                         firetouchinterest(LocalPlayer.Character.HumanoidRootPart, Flower.Main, 1)
                     end
                     wait(2)
-                    if AutoCollectFlowersButton:IsEnabeld() == false then break end
+                    if AutoCollectFlowersButton:IsEnabeld() == false then
+                        break
+                    end
                 end
             end
         end
@@ -82,10 +86,10 @@ end)
 
 -- Claim Chests
 Page:addButton("Claim Chests", function()
-    local Chests    = workspace.Chests:GetChildren()
-    local Pos       = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+    local Chests = workspace.Chests:GetChildren()
+    local Pos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
 
-    for _,Chest in pairs(Chests) do
+    for _, Chest in pairs(Chests) do
         if firetouchinterest == nil then
             LocalPlayer.Character.HumanoidRootPart.CFrame = Chest.Toucher.CFrame
         else
@@ -108,7 +112,7 @@ Threads:Add(function()
     while wait() do
         if AutoAcceptRace:IsEnabeld() then
             if LocalPlayer.PlayerGui.RaceGUI.Offer.Visible == true then
-                LocalPlayer.PlayerGui.RaceGUI.Offer.Visible = false 
+                LocalPlayer.PlayerGui.RaceGUI.Offer.Visible = false
                 ReplicatedStorage.Events.RaceRequest:FireServer()
             end
         end
@@ -123,7 +127,9 @@ Threads:Add(function()
         if WinRace:IsEnabeld() then
             local Track = workspace.RaceTrack:FindFirstChildOfClass("Model")
 
-            if Track ~= nil and Track:FindFirstChild("Counter") ~= nil and Track.Counter:FindFirstChild("SurfaceGui") ~= nil and Track.Counter.SurfaceGui:FindFirstChild("TextLabel") ~= nil and Track.Counter.SurfaceGui.TextLabel.Text == "2" then
+            if Track ~= nil and Track:FindFirstChild("Counter") ~= nil and Track.Counter:FindFirstChild("SurfaceGui") ~=
+                nil and Track.Counter.SurfaceGui:FindFirstChild("TextLabel") ~= nil and
+                Track.Counter.SurfaceGui.TextLabel.Text == "2" then
                 wait(5)
                 LocalPlayer.Character.HumanoidRootPart.CFrame = Track.Finish.CFrame
             end
@@ -134,7 +140,7 @@ end)
 -- Discover Lands
 Page:addButton("Discover Lands", function()
     local Discoveries = workspace.Discoveries:GetChildren()
-    for _,Land in pairs(Discoveries) do
+    for _, Land in pairs(Discoveries) do
         ReplicatedStorage.Events.Discover:InvokeServer(Land.Name)
     end
 end)
@@ -143,45 +149,45 @@ end)
 local Teleports = MagmaHub:addPage("Teleports")
 
 Teleports:addButton("Spawn", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(55, 6 , -58)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(55, 6, -58)
 end)
 
 Teleports:addButton("Elite Island", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(252, 6 , -3300)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(252, 6, -3300)
 end)
 
 Teleports:addButton("Dessert Chest", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-7870, 6 , 39)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-7870, 6, 39)
 end)
 
 Teleports:addButton("Golden Chest", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(471, 17 , -27)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(471, 17, -27)
 end)
 
 Teleports:addButton("Cloud Land", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(442, 17 , 2)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(442, 17, 2)
 end)
 
 Teleports:addButton("Ice Land", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(3085, 6 , -49)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(3085, 6, -49)
 end)
 
 Teleports:addButton("Farm Ville", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1414, 6 , -41)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1414, 6, -41)
 end)
 
 Teleports:addButton("Sand Land", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-7925, 6 , -6)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-7925, 6, -6)
 end)
 
 Teleports:addButton("Moon", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-322, 1879 , 3217)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-322, 1879, 3217)
 end)
 
 Teleports:addButton("Magma", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1281, 1867 , 7342)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1281, 1867, 7342)
 end)
 
 Teleports:addButton("100 Rebirths", function()
-    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-4664, 2221 , 7802)
+    LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-4664, 2221, 7802)
 end)
